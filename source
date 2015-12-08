@@ -222,11 +222,11 @@ __dplg__remove() {
 
 __dplg__clean() {
   declare -a __dplg__trash=()
-  __dplg__stat | __dplg__debug 'clean'
 
   while read plug
   do
     __dplg__parse "${plug}"
+    __dplg__stat | __dplg__debug 'clean'
     if [[ -z "${deplugs[${__dplg__name}]}" ]]
     then
       echo "${__dplg__dir}" | __dplg__verbose 'Removed'

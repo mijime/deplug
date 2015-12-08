@@ -8,15 +8,14 @@ evalute(){
 }
 
 case1(){
-  deplug ${options[@]} clean
-  deplug ${options[@]} 'mijime/dotfiles' --post 'source .bashrc.d/*.sh' --of '.bashrc.d/*.sh' --use '.bin/*'
-  deplug ${options[@]} 'mijime/dat2bar'  --post 'go build' --tag 'master' --use 'dat2bar*'
-  deplug ${options[@]} install
+  deplug ${__dplg__options[@]} clean
+  deplug ${__dplg__options[@]} 'mijime/dotfiles' --post 'source .bashrc.d/*.sh' --of '.bashrc.d/*.sh' --use '.bin/*'
+  deplug ${__dplg__options[@]} 'mijime/dat2bar'  --post 'go build' --tag 'master' --use 'dat2bar*'
+  deplug ${__dplg__options[@]} install
+  deplug ${__dplg__options[@]} load
 }
 
-options=()
-options=(--verbose --debug)
-options=(--verbose)
+__dplg__options=(--verbose --debug)
 
 source ${0%/*}/source
 evalute 'case1' case1

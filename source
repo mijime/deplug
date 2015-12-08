@@ -1,7 +1,7 @@
 #!/bin/bash
 
-unset deplugs
-declare -A deplugs=()
+unset __dplg__plugins
+declare -A __dplg__plugins=()
 
 deplug() {
   DEPLUG_HOME=${DEPLUG_HOME:-~/.deplug}
@@ -99,9 +99,9 @@ __dplg__main() {
 }
 
 __dplg__load() {
-  [[ -z "${deplugs[@]}" ]] && return
+  [[ -z "${__dplg__plugins[@]}" ]] && return
 
-  for plug in "${deplugs[@]}"
+  for plug in "${__dplg__plugins[@]}"
   do
     __dplg__parse "${plug}"
     __dplg__stat | __dplg__debug 'load'
@@ -110,11 +110,11 @@ __dplg__load() {
 }
 
 __dplg__install() {
-  [[ -z "${deplugs[@]}" ]] && return
+  [[ -z "${__dplg__plugins[@]}" ]] && return
 
   __dplg__init
 
-  for plug in "${deplugs[@]}"
+  for plug in "${__dplg__plugins[@]}"
   do
     __dplg__parse "${plug}"
     {
@@ -142,7 +142,7 @@ __dplg__defrost() {
 }
 
 __dplg__freeze() {
-  for plug in "${deplugs[@]}"
+  for plug in "${__dplg__plugins[@]}"
   do
     echo "${plug}" | __dplg__debug 'freeze'
     echo "${plug}"
@@ -150,11 +150,11 @@ __dplg__freeze() {
 }
 
 __dplg__upgrade() {
-  [[ -z "${deplugs[@]}" ]] && return
+  [[ -z "${__dplg__plugins[@]}" ]] && return
 
   __dplg__init
 
-  for plug in "${deplugs[@]}"
+  for plug in "${__dplg__plugins[@]}"
   do
     __dplg__parse "${plug}"
     {
@@ -168,7 +168,7 @@ __dplg__upgrade() {
 __dplg__status() {
   local __dplg__isdir __dplg__res=0
 
-  for plug in "${deplugs[@]}"
+  for plug in "${__dplg__plugins[@]}"
   do
     __dplg__parse "${plug}"
 
@@ -188,7 +188,7 @@ __dplg__status() {
   while read plug
   do
     __dplg__parse "${plug}"
-    if [[ -z "${deplugs[${__dplg__name}]}" ]]
+    if [[ -z "${__dplg__plugins[${__dplg__name}]}" ]]
     then
       echo "${__dplg__plugin}" | __dplg__message 'Cached'
       __dplg__res=1
@@ -201,7 +201,7 @@ __dplg__status() {
 __dplg__append() {
   __dplg__stat | __dplg__debug 'append'
 
-  deplugs[${__dplg__name}]="$(__dplg__stat)"
+  __dplg__plugins[${__dplg__name}]="$(__dplg__stat)"
 }
 
 __dplg__post() {
@@ -217,7 +217,7 @@ __dplg__post() {
 __dplg__remove() {
   __dplg__stat | __dplg__debug 'remove'
 
-  unset deplugs[${__dplg__name}]
+  unset __dplg__plugins[${__dplg__name}]
 }
 
 __dplg__clean() {
@@ -227,7 +227,7 @@ __dplg__clean() {
   do
     __dplg__parse "${plug}"
     __dplg__stat | __dplg__debug 'clean'
-    if [[ -z "${deplugs[${__dplg__name}]}" ]]
+    if [[ -z "${__dplg__plugins[${__dplg__name}]}" ]]
     then
       echo "${__dplg__dir}" | __dplg__verbose 'Removed'
       __dplg__trash=("${__dplg__trash[@]}" "${__dplg__dir}")
@@ -308,16 +308,16 @@ __dplg__stat() {
 }
 
 __dplg__parse() {
-  declare -a args=()
+  declare -a __dplg__args=()
 
-  IFS='#' read -ra args <<< "$@"
-  __dplg__name=${args[0]#name:}
-  __dplg__plugin=${args[1]#plugin:}
-  __dplg__dir=${args[2]#dir:}
-  __dplg__tag=${args[3]#tag:}
-  __dplg__post=${args[4]#post:}
-  __dplg__of=${args[5]#of:}
-  __dplg__use=${args[6]#use:}
+  IFS='#' read -ra __dplg__args <<< "$@"
+  __dplg__name=${__dplg__args[0]#name:}
+  __dplg__plugin=${__dplg__args[1]#plugin:}
+  __dplg__dir=${__dplg__args[2]#dir:}
+  __dplg__tag=${__dplg__args[3]#tag:}
+  __dplg__post=${__dplg__args[4]#post:}
+  __dplg__of=${__dplg__args[5]#of:}
+  __dplg__use=${__dplg__args[6]#use:}
 }
 
 __dplg__error() {

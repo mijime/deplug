@@ -193,8 +193,11 @@ __dplg_f_status() {
       __dplg_v_isdir='NoInstall'
       __dplg_v_iserr=1
     fi
-    echo "${__dplg_v_plugin} (name:${__dplg_v_name}, dir:${__dplg_v_dir})" |
-    __dplg_f_logger "${__dplg_v_isdir}" | __dplg_f_info
+    if [[ 0 -eq ${__dplg_v_verbose} ]]
+    then echo "${__dplg_v_plugin}" | __dplg_f_logger "${__dplg_v_isdir}" | __dplg_f_info
+    else echo "${__dplg_v_plugin} (name:${__dplg_v_name}, dir:${__dplg_v_dir})" |
+      __dplg_f_logger "${__dplg_v_isdir}" | __dplg_f_info
+    fi
   done
   if [[ 0 -eq ${__dplg_v_verbose} ]]
   then return ${__dplg_v_iserr}

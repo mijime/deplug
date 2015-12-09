@@ -1,0 +1,5 @@
+state
+repos/
+bin/
+*.bk
+*.log

@@ -79,8 +79,26 @@ __dplg_f_main() {
   "__dplg_f_${__dplg_v_cmd}"
 }
 __dplg_f_load() {
-  echo ${DEPLUG_SRC} | __dplg_f_verbose 'Loading..'
+  echo ${DEPLUG_SRC} | __dplg_f_logger 'Loading..' | __dplg_f_verbose
   source "${DEPLUG_SRC}"
+}
+__dplg_f_defrost() {
+  __dplg_f_init
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'defrost' | __dplg_f_debug
+    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Append..' | __dplg_f_verbose
+    __dplg_f_append
+  done < ${DEPLUG_STAT}
+}
+__dplg_f_freeze() {
+  __dplg_f_init
+  for plug in "${__dplg_v_plugins[@]}"
+  do
+    echo "${plug}" | __dplg_f_logger 'freeze' | __dplg_f_debug
+    echo "${plug}"
+  done > ${DEPLUG_STAT}
 }
 __dplg_f_install() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
@@ -89,34 +107,17 @@ __dplg_f_install() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'install' | __dplg_f_debug
     {
-      echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Install..'
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Install..' | __dplg_f_verbose
       __dplg_f_download
       __dplg_f_of
       __dplg_f_post
       __dplg_f_use
-      echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Installed'
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Installed' | __dplg_f_verbose
     } &
   done | cat
   __dplg_f_freeze
-}
-__dplg_f_defrost() {
-  __dplg_f_init
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-    echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Append..'
-    __dplg_f_stat | __dplg_f_debug 'defrost'
-    __dplg_f_append
-  done < ${DEPLUG_STAT}
-}
-__dplg_f_freeze() {
-  __dplg_f_init
-  for plug in "${__dplg_v_plugins[@]}"
-  do
-    echo "${plug}" | __dplg_f_debug 'freeze'
-    echo "${plug}"
-  done > ${DEPLUG_STAT}
 }
 __dplg_f_upgrade() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
@@ -125,13 +126,14 @@ __dplg_f_upgrade() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'upgrade' | __dplg_f_debug
     {
-      echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Update..'
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Update..' | __dplg_f_info
       __dplg_f_update
       __dplg_f_of
       __dplg_f_post
       __dplg_f_use
-      echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Updated'
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Updated' | __dplg_f_info
     } &
   done | cat
 }
@@ -139,10 +141,11 @@ __dplg_f_check() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    echo "${__dplg_v_plugin}" | __dplg_f_verbose 'Checking..'
+    __dplg_f_stat | __dplg_f_logger 'check' | __dplg_f_debug
+    echo "${__dplg_v_plugin}"
     [[ ! -d "${__dplg_v_dir}" ]] && return 1
-  done
-  return 0
+  done | __dplg_f_logger 'Checking..' | __dplg_f_verbose
+  return
 }
 __dplg_f_status() {
   local __dplg_v_isdir __dplg_v_iserr
@@ -150,6 +153,7 @@ __dplg_f_status() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
     if [[ -d "${__dplg_v_dir}" ]]
     then
       __dplg_v_isdir='Installed'
@@ -157,7 +161,8 @@ __dplg_f_status() {
       __dplg_v_isdir='NoInstall'
       __dplg_v_iserr=1
     fi
-    echo "${__dplg_v_plugin} (name:${__dplg_v_name}, dir:${__dplg_v_dir})" | __dplg_f_message "${__dplg_v_isdir}"
+    echo "${__dplg_v_plugin} (name:${__dplg_v_name}, dir:${__dplg_v_dir})" |
+    __dplg_f_logger "${__dplg_v_isdir}" | __dplg_f_info
   done
   if [[ 0 -eq ${__dplg_v_verbose} ]]
   then return ${__dplg_v_iserr}
@@ -166,29 +171,32 @@ __dplg_f_status() {
   while read plug
   do
     __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
     if [[ -z "${__dplg_v_plugins[${__dplg_v_name}]}" ]]
     then
-      echo "${__dplg_v_plugin} (name: ${__dplg_v_name}, dir: ${__dplg_v_dir}})" | __dplg_f_message 'Cached'
+      echo "${__dplg_v_plugin} (name:${__dplg_v_name}, dir:${__dplg_v_dir})" |
+      __dplg_f_logger 'Cached' | __dplg_f_info
       __dplg_v_iserr=1
     fi
   done < ${DEPLUG_STAT}
   return ${__dplg_v_iserr}
 }
-__dplg_f_append() {
-  __dplg_f_stat | __dplg_f_debug 'append'
-  __dplg_v_plugins[${__dplg_v_name}]="$(__dplg_f_stat)"
-}
 __dplg_f_post() {
-  __dplg_f_stat | __dplg_f_debug 'post'
-  [[ ! -d "${__dplg_v_dir}" ]] && return 1
-  [[ -z "${__dplg_v_post}" ]] && return 1
+  [[ -d "${__dplg_v_dir}"  ]] || return 1
+  [[ ! -z "${__dplg_v_post}" ]] || return 1
+  __dplg_f_stat | __dplg_f_logger 'post' | __dplg_f_debug
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}"
-  eval ${__dplg_v_post} 2>&1 | __dplg_f_verbose 'Doing..'
+  eval ${__dplg_v_post} 2>&1 |
+  __dplg_f_logger ${__dplg_v_plugin} | __dplg_f_logger 'Doing..' | __dplg_f_verbose
   cd "${__dplg_v_pwd}"
 }
+__dplg_f_append() {
+  __dplg_f_stat | __dplg_f_logger 'append' | __dplg_f_debug
+  __dplg_v_plugins[${__dplg_v_name}]="$(__dplg_f_stat)"
+}
 __dplg_f_remove() {
-  __dplg_f_stat | __dplg_f_debug 'remove'
+  __dplg_f_stat | __dplg_f_logger 'remove' | __dplg_f_debug
   unset __dplg_v_plugins[${__dplg_v_name}]
 }
 __dplg_f_clean() {
@@ -198,10 +206,10 @@ __dplg_f_clean() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_debug 'clean'
+    __dplg_f_stat | __dplg_f_logger 'clean' | __dplg_f_debug
     if [[ -z "${__dplg_v_plugins[${__dplg_v_name}]}" ]]
     then
-      echo "${__dplg_v_dir}" | __dplg_f_verbose 'Removed'
+      echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_verbose
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
   done < ${DEPLUG_STAT}
@@ -212,57 +220,65 @@ __dplg_f_clean() {
   __dplg_f_freeze
 }
 __dplg_f_download() {
-  __dplg_f_stat | __dplg_f_debug 'download'
+  __dplg_f_stat | __dplg_f_logger 'download' | __dplg_f_debug
   __dplg_v_pwd=$(pwd)
   case ${__dplg_v_plugin} in
     *)
-      if [[ ! -d "${__dplg_v_dir}" ]]
-      then
-        git clone "https://github.com/${__dplg_v_plugin}" "${__dplg_v_dir}" 2>&1 | __dplg_f_verbose 'Download'
-      fi
-      if [[ ! -z "${__dplg_v_tag}" ]]
-      then
-        {
-          cd ${__dplg_v_dir}
-          git checkout ${__dplg_v_tag} 2>&1 | __dplg_f_verbose 'Download'
-          cd ${__dplg_v_pwd}
-        }
-      fi
+      {
+        if [[ ! -d "${__dplg_v_dir}" ]]
+        then
+          git clone "https://github.com/${__dplg_v_plugin}" "${__dplg_v_dir}" 2>&1
+        fi
+        if [[ ! -z "${__dplg_v_tag}" ]]
+        then
+          {
+            cd ${__dplg_v_dir}
+            git checkout ${__dplg_v_tag} 2>&1
+            cd ${__dplg_v_pwd}
+          }
+        fi
+      } | __dplg_f_logger ${__dplg_v_plugin} | __dplg_f_logger 'Install..' | __dplg_f_verbose
       ;;
   esac
 }
 __dplg_f_update() {
-  __dplg_f_stat | __dplg_f_debug 'update'
-  [[ -d "${__dplg_v_dir}" ]] || echo "${__dplg_v_plugin} is not installed" | __dplg_f_error 'WARNING' || return 1
+  if [[ ! -d "${__dplg_v_dir}" ]]
+  then
+    echo "${__dplg_v_plugin} is not installed" | __dplg_f_logger 'Update..' | __dplg_f_verbose
+    return 1
+  fi
+  __dplg_f_stat | __dplg_f_logger 'update' | __dplg_f_debug
   __dplg_v_pwd=$(pwd)
   cd ${__dplg_v_dir}
   case ${__dplg_v_plugin} in
     *)
-      git pull 2>&1 | __dplg_f_verbose 'Update..'
-      [[ -z "${__dplg_v_tag}" ]] || git checkout ${__dplg_v_tag} 2>&1 | __dplg_f_verbose 'Update..'
+      {
+        git pull 2>&1
+        [[ -z "${__dplg_v_tag}" ]] || git checkout ${__dplg_v_tag} 2>&1
+      } | __dplg_f_logger ${__dplg_v_plugin} | __dplg_f_logger 'Update..' | __dplg_f_verbose
       ;;
   esac
   cd ${__dplg_v_pwd}
 }
 __dplg_f_of() {
-  __dplg_f_stat | __dplg_f_debug 'of'
-  [[ -z "${__dplg_v_of}" ]] && return
+  [[ ! -z "${__dplg_v_of}" ]] || return
+  __dplg_f_stat | __dplg_f_logger 'of' | __dplg_f_debug
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "${srcfile}" | __dplg_f_verbose 'Source'
     echo "source '${srcfile}'"
-  done >> "${DEPLUG_SRC}"
+  done | tee -a "${DEPLUG_SRC}" | __dplg_f_logger 'Include..' | __dplg_f_verbose
 }
 __dplg_f_use() {
-  __dplg_f_stat | __dplg_f_debug 'use'
-  [[ -z ${__dplg_v_use} ]] && return
+  [[ ! -z ${__dplg_v_use} ]] || return
+  __dplg_f_stat | __dplg_f_logger 'use' | __dplg_f_debug
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
   do
     [[ -z "${usefile}" ]] && continue
-    echo "${usefile}" | __dplg_f_verbose 'Using'
-    ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1
-  done | __dplg_f_verbose 'Using'
+    echo "${usefile}"
+    ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1 |
+    __dplg_f_logger ${usefile} | __dplg_f_logger 'Using..' | __dplg_f_verbose
+  done | __dplg_f_logger 'Using..' | __dplg_f_verbose
 }
 __dplg_f_help() {
   echo
@@ -271,27 +287,29 @@ __dplg_f_stat() {
   echo "name:${__dplg_v_name}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#post:${__dplg_v_post}#of:${__dplg_v_of}#use:${__dplg_v_use}"
 }
 __dplg_f_error() {
-  __dplg_f_message 'ERROR'
+  __dplg_f_logger '[ERROR]' | __dplg_f_info
   return 1
 }
 __dplg_f_debug() {
   [[ 0 -eq ${__dplg_v_debug} ]] && return
-  local __dplg_v_message="${1:-${__dplg_v_name}}"
-  __dplg_f_message "DEBUG:${__dplg_v_message}"
+  __dplg_f_logger '[DEBUG]' | __dplg_f_info
 }
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
-  local __dplg_v_message="${1:-INFO}"
-  __dplg_f_message "${__dplg_v_message}"
+  __dplg_f_info
 }
-__dplg_f_message() {
+__dplg_f_info() {
   while read line
-  do
-    printf "%-12s %s\n" "[${@:-INFO}]" "${line}" >&2
+  do echo "$line" >&2
+  done
+}
+__dplg_f_logger() {
+  while read line
+  do echo "$(printf "%-10s" $1) $line"
   done
 }
 __dplg_f_glob() {
-  echo "$@" | __dplg_f_debug 'glob'
+  echo "$@" | __dplg_f_logger 'glob' | __dplg_f_debug
   eval \\ls -1pd "$@"
 }
 __dplg_f_parse() {

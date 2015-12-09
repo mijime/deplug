@@ -17,5 +17,5 @@ case1(){
 
 __dplg__options=(--verbose --debug)
 
-source ${0%/*}/source
+source ${0%/*}/../deplug.bash
 evalute 'case1' case1

@@ -24,32 +24,32 @@ __dplg__main() {
   while [[ $# -gt 0 ]]
   do
     case $1 in
-      --post)
+      --post|post:)
         __dplg__post=$2
         shift 2 || echo 'post is need a attribute' | __dplg__error || return 1
         ;;
 
-      --tag)
+      --tag|tag:)
         __dplg__tag=$2
         shift 2 || echo 'tag is need a attribute' | __dplg__error || return 1
         ;;
 
-      --of)
+      --of|of:)
         __dplg__of=$2
         shift 2 || echo 'of is need a attribute' | __dplg__error || return 1
         ;;
 
-      --use)
+      --use|use:)
         __dplg__use=$2
         shift 2 || echo 'use is need a attribute' | __dplg__error || return 1
         ;;
 
-      --dir)
+      --dir|dir:)
         __dplg__dir=$2
         shift 2 || echo 'dir is need a attribute' | __dplg__error || return 1
         ;;
 
-      --name)
+      --name|name:)
         __dplg__name=$2
         shift 2 || echo 'name is need a attribute' | __dplg__error || return 1
         ;;
@@ -59,7 +59,7 @@ __dplg__main() {
         shift || break
         ;;
 
-      --verbose)
+      --verbose|-v)
         __dplg__verbose=1
         shift || break
         ;;

@@ -99,8 +99,8 @@ __dplg_f_main() {
   "__dplg_f_${__dplg_v_cmd}"
 }
 
-__dplg_f_load() {
-  echo ${DEPLUG_SRC} | __dplg_f_logger 'Loading..' | __dplg_f_verbose
+__dplg_f_include() {
+  echo ${DEPLUG_SRC} | __dplg_f_logger 'Included' | __dplg_f_verbose
   source "${DEPLUG_SRC}"
 }
 
@@ -127,11 +127,28 @@ __dplg_f_freeze() {
   done > ${DEPLUG_STAT}
 }
 
-__dplg_f_install() {
+__dplg_f_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
 
   __dplg_f_init
   echo > ${DEPLUG_SRC}
+
+  for plug in "${__dplg_v_plugins[@]}"
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'reload' | __dplg_f_debug
+
+    {
+      __dplg_f_of
+      __dplg_f_use
+    } &
+  done | cat
+}
+
+__dplg_f_install() {
+  [[ -z "${__dplg_v_plugins[@]}" ]] && return
+
+  __dplg_f_init
 
   for plug in "${__dplg_v_plugins[@]}"
   do
@@ -141,13 +158,12 @@ __dplg_f_install() {
     {
       echo "${__dplg_v_plugin}" | __dplg_f_logger 'Install..' | __dplg_f_info
       __dplg_f_download
-      __dplg_f_of
       __dplg_f_post
-      __dplg_f_use
       echo "${__dplg_v_plugin}" | __dplg_f_logger 'Installed' | __dplg_f_info
     } &
   done | cat
 
+  __dplg_f_reload
   __dplg_f_freeze
 }
 
@@ -155,7 +171,6 @@ __dplg_f_upgrade() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
 
   __dplg_f_init
-  echo > ${DEPLUG_SRC}
 
   for plug in "${__dplg_v_plugins[@]}"
   do
@@ -165,12 +180,39 @@ __dplg_f_upgrade() {
     {
       echo "${__dplg_v_plugin}" | __dplg_f_logger 'Update..' | __dplg_f_info
       __dplg_f_update
-      __dplg_f_of
       __dplg_f_post
-      __dplg_f_use
       echo "${__dplg_v_plugin}" | __dplg_f_logger 'Updated'  | __dplg_f_info
     } &
   done | cat
+
+  __dplg_f_reload
+  __dplg_f_freeze
+}
+
+__dplg_f_clean() {
+  __dplg_f_init
+
+  declare -a __dplg_v_trash=()
+
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stat | __dplg_f_logger 'clean' | __dplg_f_debug
+
+    if [[ -z "${__dplg_v_plugins[${__dplg_v_name}]}" ]]
+    then
+      echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_info
+      __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
+    fi
+  done < ${DEPLUG_STAT}
+
+  if [[ ! -z "${__dplg_v_trash[@]}" ]]
+  then
+    \\rm -r "${__dplg_v_trash[@]}"
+  fi
+
+  __dplg_f_reload
+  __dplg_f_freeze
 }
 
 __dplg_f_check() {
@@ -252,32 +294,6 @@ __dplg_f_remove() {
   __dplg_f_stat | __dplg_f_logger 'remove' | __dplg_f_debug
 
   unset __dplg_v_plugins[${__dplg_v_name}]
-}
-
-__dplg_f_clean() {
-  __dplg_f_init
-  echo > ${DEPLUG_SRC}
-
-  declare -a __dplg_v_trash=()
-
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'clean' | __dplg_f_debug
-
-    if [[ -z "${__dplg_v_plugins[${__dplg_v_name}]}" ]]
-    then
-      echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_info
-      __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
-    fi
-  done < ${DEPLUG_STAT}
-
-  if [[ ! -z "${__dplg_v_trash[@]}" ]]
-  then
-    \\rm -r "${__dplg_v_trash[@]}"
-  fi
-
-  __dplg_f_freeze
 }
 
 __dplg_f_download() {

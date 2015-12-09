@@ -10,6 +10,7 @@ export DEPLUG_HOME=${cdir}/tmp/zsh
 export DEPLUG_BIN=${cdir}/tmp/zsh/bin
 export DEPLUG_SRC=${cdir}/tmp/zsh/source
 export DEPLUG_STAT=${cdir}/tmp/zsh/state
+export DEPLUG_REPO=${cdir}/tmp/zsh/repos
 
 source ${cdir}/../src/common.sh
 source ${cdir}/../src/zsh/*.zsh

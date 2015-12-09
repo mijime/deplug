@@ -100,6 +100,8 @@ __dplg_f_main() {
 }
 
 __dplg_f_include() {
+  [[ -f ${DEPLUG_SRC} ]] || __dplg_f_reload
+
   echo ${DEPLUG_SRC} | __dplg_f_logger 'Included' | __dplg_f_verbose
   source "${DEPLUG_SRC}"
 }
@@ -131,7 +133,7 @@ __dplg_f_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
 
   __dplg_f_init
-  echo > ${DEPLUG_SRC}
+  echo "export PATH=\${PATH}:${DEPLUG_BIN}" > ${DEPLUG_SRC}
 
   for plug in "${__dplg_v_plugins[@]}"
   do
@@ -163,8 +165,8 @@ __dplg_f_install() {
     } &
   done | cat
 
-  __dplg_f_reload
   __dplg_f_freeze
+  __dplg_f_reload
 }
 
 __dplg_f_upgrade() {
@@ -185,8 +187,8 @@ __dplg_f_upgrade() {
     } &
   done | cat
 
-  __dplg_f_reload
   __dplg_f_freeze
+  __dplg_f_reload
 }
 
 __dplg_f_clean() {
@@ -211,8 +213,8 @@ __dplg_f_clean() {
     \\rm -r "${__dplg_v_trash[@]}"
   fi
 
-  __dplg_f_reload
   __dplg_f_freeze
+  __dplg_f_reload
 }
 
 __dplg_f_check() {

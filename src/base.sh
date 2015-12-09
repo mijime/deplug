@@ -210,8 +210,10 @@ __dplg__post() {
   [[ ! -d "${__dplg__dir}" ]] && return 1
   [[ -z "${__dplg__post}" ]] && return 1
 
-  cd ${__dplg__dir}
-  ${__dplg__post} 2>&1 | __dplg__logger 'post'
+  __dplg__pwd=$(pwd)
+  cd "${__dplg__dir}"
+  eval ${__dplg__post} 2>&1 | __dplg__logger 'post'
+  cd "${__dplg__pwd}"
 }
 
 __dplg__remove() {
@@ -289,7 +291,9 @@ __dplg__of() {
   [[ -z "${__dplg__of}" ]] && return
 
   echo "${__dplg__dir}/${__dplg__of}" | __dplg__verbose 'Loading..'
-  source ${__dplg__dir}/${__dplg__of} 2>&1 | __dplg__logger 'Loading'
+  __dplg__glob "${__dplg__dir}/${__dplg__of}" | while read srcfile
+  do source "${srcfile}" 2>&1
+  done | __dplg__logger 'Loading'
 }
 
 __dplg__use() {
@@ -298,7 +302,9 @@ __dplg__use() {
   [[ -z ${__dplg__use} ]] && return
 
   echo "${__dplg__dir}/${__dplg__use}" | __dplg__verbose 'Using'
-  ln -sf ${__dplg__dir}/${__dplg__use} ${DEPLUG_BIN}
+  __dplg__glob "${__dplg__dir}/${__dplg__use}" | while read usefile
+  do ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1
+  done | __dplg__logger 'Using'
 }
 
 __dplg__help() {
@@ -341,4 +347,10 @@ __dplg__message() {
   do
     printf "%-12s %s\n" "[${@:-INFO}]" "${line}" >&2
   done
+}
+
+__dplg__glob() {
+  echo "$@" | __dplg__debug 'glob'
+
+  eval \ls -1p "$@"
 }

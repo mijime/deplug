@@ -1,22 +1,13 @@
 #!/usr/bin/zsh -e
 
-evalute(){
-  echo $1
-  shift
+TEST_CASE=zsh
+TEST_TARGET=${TEST_TARGET:-.*}
 
-  time "$@"
-}
+cdir=${0%/*}
 
-caseAll(){
-  deplug ${__dplg__options[@]} clean
-  deplug ${__dplg__options[@]} 'mijime/dotfiles' of: '.bashrc.d/*.sh' use: '.bin/*'
-  deplug ${__dplg__options[@]} 'mijime/dat2bar'  --post 'go build' --tag 'master' --use 'dat2bar*'
-  deplug ${__dplg__options[@]} install
-  deplug ${__dplg__options[@]} load
-}
-
-__dplg__options=(--verbose --debug)
-
-source ${0%/*}/../deplug.zsh
-
-evalute 'clean install load' caseAll
+source ${cdir}/../src/base.sh
+source ${cdir}/../src/zsh/*.zsh
+source ${cdir}/utils/*.sh
+ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase
+do source ${testcase}
+done

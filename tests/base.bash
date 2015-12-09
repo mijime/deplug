@@ -1,22 +1,13 @@
-#!/bin/bash -e
+#!/usr/bin/bash -e
 
-evalute(){
-  echo $1
-  shift
+TEST_CASE=bash
+TEST_TARGET=${TEST_TARGET:-.*}
 
-  time "$@"
-}
+cdir=${0%/*}
 
-caseAll(){
-  deplug ${__dplg__options[@]} clean
-  deplug ${__dplg__options[@]} 'mijime/dotfiles' of: '.bashrc.d/*.sh' use: '.bin/*'
-  deplug ${__dplg__options[@]} 'mijime/dat2bar'  --post 'go build' --tag 'master' --use 'dat2bar*'
-  deplug ${__dplg__options[@]} install
-  deplug ${__dplg__options[@]} load
-}
-
-__dplg__options=(--verbose --debug)
-
-source ${0%/*}/../deplug.bash
-
-evalute 'clean install load' caseAll
+source ${cdir}/../src/base.sh
+source ${cdir}/../src/bash/*.bash
+source ${cdir}/utils/*.sh
+ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase
+do source ${testcase}
+done

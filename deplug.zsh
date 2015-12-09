@@ -109,12 +109,12 @@ __dplg_f_install() {
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'install' | __dplg_f_debug
     {
-      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Install..' | __dplg_f_verbose
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Install..' | __dplg_f_info
       __dplg_f_download
       __dplg_f_of
       __dplg_f_post
       __dplg_f_use
-      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Installed' | __dplg_f_verbose
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Installed' | __dplg_f_info
     } &
   done | cat
   __dplg_f_freeze
@@ -133,7 +133,7 @@ __dplg_f_upgrade() {
       __dplg_f_of
       __dplg_f_post
       __dplg_f_use
-      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Updated' | __dplg_f_info
+      echo "${__dplg_v_plugin}" | __dplg_f_logger 'Updated'  | __dplg_f_info
     } &
   done | cat
 }

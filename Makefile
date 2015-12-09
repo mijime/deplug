@@ -13,5 +13,5 @@ deplug.bash: $(BASH_FILES) $(BASH_FILES)
 deplug.zsh: $(BASH_FILES) $(zsh_FILES)
 	cat $< > $@
 
-test:
+test: all
 	bash tests/base.bash

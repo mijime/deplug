@@ -173,10 +173,10 @@ __dplg_f_check() {
   do
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'check' | __dplg_f_debug
-    echo "${__dplg_v_plugin}"
-    [[ ! -d "${__dplg_v_dir}" ]] && return 1
-  done | __dplg_f_logger 'Checking..' | __dplg_f_verbose
-  return
+    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Checking..' | __dplg_f_verbose
+    [[ -d "${__dplg_v_dir}" ]] || return 1
+  done
+  return 0
 }
 __dplg_f_status() {
   local __dplg_v_isdir __dplg_v_iserr

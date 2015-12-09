@@ -10,7 +10,7 @@ export DEPLUG_HOME=${cdir}/tmp/bash
 export DEPLUG_BIN=${cdir}/tmp/bash/bin
 export DEPLUG_SRC=${cdir}/tmp/bash/source
 
-source ${cdir}/../src/base.sh
+source ${cdir}/../src/common.sh
 source ${cdir}/../src/bash/*.bash
 source ${cdir}/utils/*.sh
 ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase

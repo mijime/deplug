@@ -10,7 +10,7 @@ export DEPLUG_HOME=${cdir}/tmp/zsh
 export DEPLUG_BIN=${cdir}/tmp/zsh/bin
 export DEPLUG_SRC=${cdir}/tmp/zsh/source
 
-source ${cdir}/../src/base.sh
+source ${cdir}/../src/common.sh
 source ${cdir}/../src/zsh/*.zsh
 source ${cdir}/utils/*.sh
 ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase

@@ -9,6 +9,7 @@ cdir=${0%/*}
 export DEPLUG_HOME=${cdir}/tmp/zsh
 export DEPLUG_BIN=${cdir}/tmp/zsh/bin
 export DEPLUG_SRC=${cdir}/tmp/zsh/source
+export DEPLUG_STAT=${cdir}/tmp/zsh/state
 
 source ${cdir}/../src/common.sh
 source ${cdir}/../src/zsh/*.zsh

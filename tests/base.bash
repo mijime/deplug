@@ -9,6 +9,7 @@ cdir=${0%/*}
 export DEPLUG_HOME=${cdir}/tmp/bash
 export DEPLUG_BIN=${cdir}/tmp/bash/bin
 export DEPLUG_SRC=${cdir}/tmp/bash/source
+export DEPLUG_STAT=${cdir}/tmp/bash/state
 
 source ${cdir}/../src/common.sh
 source ${cdir}/../src/bash/*.bash

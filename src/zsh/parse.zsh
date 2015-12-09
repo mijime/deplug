@@ -1,13 +1,13 @@
-__dplg__parse() {
-  local __dplg__args=()
+__dplg_f_parse() {
+  local __dplg_v_args=()
 
-  __dplg__args=("${(s/#/)@}")
+  __dplg_v_args=("${(s/#/)@}")
 
-  __dplg__name=${__dplg__args[1]#name:}
-  __dplg__plugin=${__dplg__args[2]#plugin:}
-  __dplg__dir=${__dplg__args[3]#dir:}
-  __dplg__tag=${__dplg__args[4]#tag:}
-  __dplg__post=${__dplg__args[5]#post:}
-  __dplg__of=${__dplg__args[6]#of:}
-  __dplg__use=${__dplg__args[7]#use:}
+  __dplg_v_name=${__dplg_v_args[1]#name:}
+  __dplg_v_plugin=${__dplg_v_args[2]#plugin:}
+  __dplg_v_dir=${__dplg_v_args[3]#dir:}
+  __dplg_v_tag=${__dplg_v_args[4]#tag:}
+  __dplg_v_post=${__dplg_v_args[5]#post:}
+  __dplg_v_of=${__dplg_v_args[6]#of:}
+  __dplg_v_use=${__dplg_v_args[7]#use:}
 }

@@ -130,6 +130,7 @@ __dplg_f_install() {
     } &
   done | cat
   __dplg_f_freeze
+  __dplg_f_reload
 }
 __dplg_f_upgrade() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
@@ -146,6 +147,7 @@ __dplg_f_upgrade() {
     } &
   done | cat
   __dplg_f_freeze
+  __dplg_f_reload
 }
 __dplg_f_clean() {
   __dplg_f_init

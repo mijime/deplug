@@ -2,8 +2,13 @@
 
 TEST_CASE=bash
 TEST_TARGET=${TEST_TARGET:-.*}
+SHELL=/usr/bin/bash
 
 cdir=${0%/*}
+
+export DEPLUG_HOME=${cdir}/tmp/bash
+export DEPLUG_BIN=${cdir}/tmp/bash/bin
+export DEPLUG_SRC=${cdir}/tmp/bash/source
 
 source ${cdir}/../src/base.sh
 source ${cdir}/../src/bash/*.bash

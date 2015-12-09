@@ -6,8 +6,5 @@ caseAll(){
   deplug ${__dplg__options[@]} load
 }
 
-export DEPLUG_HOME=${cdir}/tmp
-export DEPLUG_BIN=${cdir}/tmp/bin
-
 __dplg__options=(--verbose --debug)
 evalute 'all' caseAll

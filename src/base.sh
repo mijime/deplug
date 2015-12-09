@@ -8,6 +8,7 @@ deplug() {
   DEPLUG_STAT=${DEPLUG_STAT:-${DEPLUG_HOME}/state}
   DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
   DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
+  DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
 
   __dplg__main "$@"
 }
@@ -99,20 +100,15 @@ __dplg__main() {
 }
 
 __dplg__load() {
-  [[ -z "${__dplg__plugins[@]}" ]] && return
-
-  for plug in "${__dplg__plugins[@]}"
-  do
-    __dplg__parse "${plug}"
-    __dplg__stat | __dplg__debug 'load'
-    __dplg__of
-  done | cat
+  echo ${DEPLUG_SRC} | __dplg__verbose 'Loading..'
+  source "${DEPLUG_SRC}"
 }
 
 __dplg__install() {
   [[ -z "${__dplg__plugins[@]}" ]] && return
 
   __dplg__init
+  echo > ${DEPLUG_SRC}
 
   for plug in "${__dplg__plugins[@]}"
   do
@@ -120,6 +116,7 @@ __dplg__install() {
     {
       echo "${__dplg__plugin}" | __dplg__verbose 'Install..'
       __dplg__download
+      __dplg__of
       __dplg__post
       __dplg__use
       echo "${__dplg__plugin}" | __dplg__verbose 'Installed'
@@ -130,18 +127,21 @@ __dplg__install() {
 }
 
 __dplg__defrost() {
+  __dplg__init
 
   while read plug
   do
     __dplg__parse "${plug}"
 
-    echo "${__dplg__plugin}" | __dplg__verbose 'Defrost'
+    echo "${__dplg__plugin}" | __dplg__verbose 'Append..'
     __dplg__stat | __dplg__debug 'defrost'
     __dplg__append
   done < ${DEPLUG_STAT}
 }
 
 __dplg__freeze() {
+  __dplg__init
+
   for plug in "${__dplg__plugins[@]}"
   do
     echo "${plug}" | __dplg__debug 'freeze'
@@ -153,20 +153,36 @@ __dplg__upgrade() {
   [[ -z "${__dplg__plugins[@]}" ]] && return
 
   __dplg__init
+  echo > ${DEPLUG_SRC}
 
   for plug in "${__dplg__plugins[@]}"
   do
     __dplg__parse "${plug}"
     {
+      echo "${__dplg__plugin}" | __dplg__verbose 'Update..'
       __dplg__update
+      __dplg__of
       __dplg__post
       __dplg__use
+      echo "${__dplg__plugin}" | __dplg__verbose 'Updated'
     } &
   done | cat
 }
+__dplg__check() {
+  for plug in "${__dplg__plugins[@]}"
+  do
+    __dplg__parse "${plug}"
+    echo "${__dplg__plugin}" | __dplg__verbose 'Checking..'
+    [[ ! -d "${__dplg__dir}" ]] && return 1
+  done
+
+  return 0
+}
 
 __dplg__status() {
-  local __dplg__isdir __dplg__res=0
+
+  local __dplg__isdir __dplg__res
+  __dplg__res=0
 
   for plug in "${__dplg__plugins[@]}"
   do
@@ -180,17 +196,21 @@ __dplg__status() {
       __dplg__res=1
     fi
 
-    echo "${__dplg__plugin}" | __dplg__message "${__dplg__isdir}"
-  done | cat
+    echo "${__dplg__plugin} (name:${__dplg__name}, dir:${__dplg__dir})" | __dplg__message "${__dplg__isdir}"
+  done
 
-  [[ 0 -eq ${__dplg__verbose} ]] && return ${__dplg__res}
+  if [[ 0 -eq ${__dplg__verbose} ]]
+  then return ${__dplg__res}
+  fi
+
+  __dplg__init
 
   while read plug
   do
     __dplg__parse "${plug}"
     if [[ -z "${__dplg__plugins[${__dplg__name}]}" ]]
     then
-      echo "${__dplg__plugin}" | __dplg__message 'Cached'
+      echo "${__dplg__plugin} (name: ${__dplg__name}, dir: ${__dplg__dir}})" | __dplg__message 'Cached'
       __dplg__res=1
     fi
   done < ${DEPLUG_STAT}
@@ -212,7 +232,7 @@ __dplg__post() {
 
   __dplg__pwd=$(pwd)
   cd "${__dplg__dir}"
-  eval ${__dplg__post} 2>&1 | __dplg__logger 'post'
+  eval ${__dplg__post} 2>&1 | __dplg__verbose 'Doing..'
   cd "${__dplg__pwd}"
 }
 
@@ -224,6 +244,7 @@ __dplg__remove() {
 
 __dplg__clean() {
   __dplg__init
+  echo > ${DEPLUG_SRC}
 
   declare -a __dplg__trash=()
 
@@ -240,7 +261,7 @@ __dplg__clean() {
 
   if [[ ! -z "${__dplg__trash[@]}" ]]
   then
-    \rm -r "${__dplg__trash[@]}"
+    \\rm -r "${__dplg__trash[@]}"
   fi
 
   __dplg__freeze
@@ -254,14 +275,14 @@ __dplg__download() {
     *)
       if [[ ! -d "${__dplg__dir}" ]]
       then
-        git clone "https://github.com/${__dplg__plugin}" "${__dplg__dir}" 2>&1 | __dplg__logger 'Download'
+        git clone "https://github.com/${__dplg__plugin}" "${__dplg__dir}" 2>&1 | __dplg__verbose 'Download'
       fi
 
       if [[ ! -z "${__dplg__tag}" ]]
       then
         {
           cd ${__dplg__dir}
-          git checkout ${__dplg__tag} 2>&1 | __dplg__logger 'Download'
+          git checkout ${__dplg__tag} 2>&1 | __dplg__verbose 'Download'
           cd ${__dplg__pwd}
         }
       fi
@@ -278,8 +299,8 @@ __dplg__update() {
   cd ${__dplg__dir}
   case ${__dplg__plugin} in
     *)
-      git pull 2>&1 | __dplg__logger 'Update'
-      [[ -z "${__dplg__tag}" ]] || git checkout ${__dplg__tag} 2>&1 | __dplg__logger 'Update'
+      git pull 2>&1 | __dplg__verbose 'Update..'
+      [[ -z "${__dplg__tag}" ]] || git checkout ${__dplg__tag} 2>&1 | __dplg__verbose 'Update..'
       ;;
   esac
   cd ${__dplg__pwd}
@@ -290,10 +311,12 @@ __dplg__of() {
 
   [[ -z "${__dplg__of}" ]] && return
 
-  echo "${__dplg__dir}/${__dplg__of}" | __dplg__verbose 'Loading..'
   __dplg__glob "${__dplg__dir}/${__dplg__of}" | while read srcfile
-  do source "${srcfile}" 2>&1
-  done | __dplg__logger 'Loading'
+  do
+    [[ -z "{srcfile}" ]] && continue
+    echo "${srcfile}" | __dplg__verbose 'Source'
+    echo "source '${srcfile}'"
+  done >> "${DEPLUG_SRC}"
 }
 
 __dplg__use() {
@@ -301,10 +324,12 @@ __dplg__use() {
 
   [[ -z ${__dplg__use} ]] && return
 
-  echo "${__dplg__dir}/${__dplg__use}" | __dplg__verbose 'Using'
   __dplg__glob "${__dplg__dir}/${__dplg__use}" | while read usefile
-  do ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1
-  done | __dplg__logger 'Using'
+  do
+    [[ -z "${usefile}" ]] && continue
+    echo "${usefile}" | __dplg__verbose 'Using'
+    ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1
+  done | __dplg__verbose 'Using'
 }
 
 __dplg__help() {
@@ -328,13 +353,6 @@ __dplg__debug() {
   __dplg__message "DEBUG:${__dplg__message}"
 }
 
-__dplg__logger() {
-  [[ 0 -eq ${__dplg__verbose} ]] && return
-
-  local __dplg__message="${1:-INFO}:${__dplg__name}"
-  __dplg__message "${__dplg__message}"
-}
-
 __dplg__verbose() {
   [[ 0 -eq ${__dplg__verbose} ]] && return
 
@@ -352,5 +370,5 @@ __dplg__message() {
 __dplg__glob() {
   echo "$@" | __dplg__debug 'glob'
 
-  eval \ls -1p "$@"
+  eval \\ls -1pd "$@"
 }

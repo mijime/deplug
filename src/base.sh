@@ -221,8 +221,6 @@ __dplg__remove() {
 }
 
 __dplg__clean() {
-  [[ -z "${__dplg__plugins[@]}" ]] && return
-
   __dplg__init
 
   declare -a __dplg__trash=()

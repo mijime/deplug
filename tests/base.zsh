@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/zsh -e
 
 evalute(){
   echo $1
@@ -17,6 +17,6 @@ caseAll(){
 
 __dplg__options=(--verbose --debug)
 
-source ${0%/*}/../deplug.bash
+source ${0%/*}/../deplug.zsh
 
 evalute 'clean install load' caseAll

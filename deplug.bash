@@ -307,19 +307,6 @@ __dplg__stat() {
   echo "name:${__dplg__name}#plugin:${__dplg__plugin}#dir:${__dplg__dir}#tag:${__dplg__tag}#post:${__dplg__post}#of:${__dplg__of}#use:${__dplg__use}"
 }
 
-__dplg__parse() {
-  declare -a __dplg__args=()
-
-  IFS='#' read -ra __dplg__args <<< "$@"
-  __dplg__name=${__dplg__args[0]#name:}
-  __dplg__plugin=${__dplg__args[1]#plugin:}
-  __dplg__dir=${__dplg__args[2]#dir:}
-  __dplg__tag=${__dplg__args[3]#tag:}
-  __dplg__post=${__dplg__args[4]#post:}
-  __dplg__of=${__dplg__args[5]#of:}
-  __dplg__use=${__dplg__args[6]#use:}
-}
-
 __dplg__error() {
   __dplg__message 'ERROR'
 
@@ -352,4 +339,16 @@ __dplg__message() {
   do
     printf "%-12s %s\n" "[${@:-INFO}]" "${line}" >&2
   done
+}
+__dplg__parse() {
+  local __dplg__args=()
+
+  IFS='#' read -ra __dplg__args <<< "$@"
+  __dplg__name=${__dplg__args[0]#name:}
+  __dplg__plugin=${__dplg__args[1]#plugin:}
+  __dplg__dir=${__dplg__args[2]#dir:}
+  __dplg__tag=${__dplg__args[3]#tag:}
+  __dplg__post=${__dplg__args[4]#post:}
+  __dplg__of=${__dplg__args[5]#of:}
+  __dplg__use=${__dplg__args[6]#use:}
 }

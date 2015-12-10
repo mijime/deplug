@@ -7,7 +7,25 @@ deplug() {
   DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
   DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
   DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
-  __dplg_f_main "$@"
+  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0
+  local __dplg_v_key= \
+    __dplg_v_pwd= \
+    __dplg_v_cmd= \
+    __dplg_v_plugin= \
+    __dplg_v_as= \
+    __dplg_v_dir= \
+    __dplg_v_of= \
+    __dplg_v_use= \
+    __dplg_v_tag= \
+    __dplg_v_post= \
+    __dplg_v_from='https://github.com'
+  __dplg_f_parseArgs "$@"
+  if [[ -z "${__dplg_v_cmd}" ]]
+  then
+    __dplg_f_help
+    return 1
+  fi
+  "__dplg_f_${__dplg_v_cmd}"
 }
 __dplg_f_init() {
   mkdir -p ${DEPLUG_HOME} ${DEPLUG_REPO} ${DEPLUG_BIN}
@@ -60,27 +78,6 @@ __dplg_f_parseArgs() {
   if [[ -z "${__dplg_v_dir}"  ]]
   then __dplg_v_dir="${DEPLUG_REPO}/${__dplg_v_as}"
   fi
-}
-__dplg_f_main() {
-  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0
-  local __dplg_v_key= \
-    __dplg_v_pwd= \
-    __dplg_v_cmd= \
-    __dplg_v_plugin= \
-    __dplg_v_as= \
-    __dplg_v_dir= \
-    __dplg_v_of= \
-    __dplg_v_use= \
-    __dplg_v_tag= \
-    __dplg_v_post= \
-    __dplg_v_from='https://github.com'
-  __dplg_f_parseArgs "$@"
-  if [[ -z "${__dplg_v_cmd}" ]]
-  then
-    __dplg_f_help
-    return 1
-  fi
-  "__dplg_f_${__dplg_v_cmd}"
 }
 __dplg_f_include() {
   [[ -f ${DEPLUG_SRC} ]] || __dplg_f_reload
@@ -229,7 +226,7 @@ __dplg_f_post() {
 }
 __dplg_f_append() {
   __dplg_f_stat | __dplg_f_logger 'append' | __dplg_f_debug
-  __dplg_v_plugins[${__dplg_v_as}]="$(__dplg_f_stat)"
+  __dplg_v_plugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}"
 }
 __dplg_f_remove() {
   __dplg_f_stat | __dplg_f_logger 'remove' | __dplg_f_debug

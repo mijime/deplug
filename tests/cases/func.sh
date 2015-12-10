@@ -14,14 +14,16 @@ echo "echo Include2.sh on space" > "${DEPLUG_HOME}/space dir/include2.sh"
 find ${DEPLUG_HOME}
 
 evalute 'glob'    __dplg_f_glob  "${DEPLUG_HOME}/dir"
-evalute 'parse'   __dplg_f_parse "name:#plugin:#dir:${DEPLUG_HOME}/dir#tag:#post:cat *.sh#of:*.sh#use:*.sh"
+evalute 'parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+evalute 'stat'    __dplg_f_stat
 evalute 'of'      __dplg_f_of
 evalute 'use'     __dplg_f_use
 evalute 'post'    __dplg_f_post
 evalute 'include' __dplg_f_include
 
 evalute 'spacedir glob'    __dplg_f_glob  "${DEPLUG_HOME}/space\ dir"
-evalute 'spacedir parse'   __dplg_f_parse "name:#plugin:#dir:${DEPLUG_HOME}/space\ dir#tag:#post:cat *.sh#of:*.sh#use:*.sh"
+evalute 'spacedir parse'   __dplg_f_parse "as:#plugin:#dir:${DEPLUG_HOME}/space\ dir#tag:#post:cat *.sh#of:*.sh#use:*.sh#from:https://github.com"
+evalute 'spacedir stat'    __dplg_f_stat
 evalute 'spacedir of'      __dplg_f_of
 evalute 'spacedir use'     __dplg_f_use
 evalute 'spacedir include' __dplg_f_include

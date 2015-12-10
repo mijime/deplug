@@ -10,7 +10,7 @@ deplug() {
   DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
   DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
 
-  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0
+  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
   local __dplg_v_key= \
     __dplg_v_pwd= \
     __dplg_v_cmd= \
@@ -45,6 +45,11 @@ __dplg_f_parseArgs() {
     case $1 in
       --debug)
         __dplg_v_debug=1
+        shift || break
+        ;;
+
+      --yes|-y)
+        __dplg_v_yes=1
         shift || break
         ;;
 
@@ -208,11 +213,24 @@ __dplg_f_clean() {
 
   if [[ ! -z "${__dplg_v_trash[@]}" ]]
   then
-    \\rm -r "${__dplg_v_trash[@]}"
-  fi
+    local __dplug_v_ans
 
-  __dplg_f_freeze
-  __dplg_f_reload
+    if [[ 0 -eq ${__dplug_v_yes} ]]
+    then
+      echo -n 'Do you really want to clean? [y/N]: '
+      read __dplug_v_ans
+      echo
+    else
+      __dplug_v_ans=y
+    fi
+
+    if [[ "${__dplug_v_ans}" =~ y ]] ; then
+      rm -r "${__dplg_v_trash[@]}"
+
+      __dplg_f_freeze
+      __dplg_f_reload
+    fi
+  fi
 }
 
 __dplg_f_check() {

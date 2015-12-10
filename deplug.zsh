@@ -13,23 +13,6 @@ __dplg_f_init() {
   mkdir -p ${DEPLUG_HOME} ${DEPLUG_REPO} ${DEPLUG_BIN}
   touch ${DEPLUG_STAT}
 }
-__dplg_f_setval() {
-  echo $1 $2 | __dplg_f_logger 'setval' | __dplg_f_debug
-  case $1 in
-    as|dir|of|use|tag|post|from)
-      if [[ -z $2 ]]
-      then
-        echo "'$1' is need a attribute" | __dplg_f_error
-        return 1
-      fi
-      eval "__dplg_v_$1='$2'"
-      ;;
-    *)
-      echo "Undefined option is '$1'" | __dplg_f_error
-      return 1
-  esac
-  return 0
-}
 __dplg_f_parseArgs() {
   while [[ $# -gt 0 ]]
   do
@@ -43,21 +26,21 @@ __dplg_f_parseArgs() {
         shift || break
         ;;
       *:)
-        __dplg_f_setval "${1%%:*}" "$2" || return 1
+        eval "__dplg_v_${1%%:*}='$2'" || return 1
         shift 2 || break
         ;;
       *:*)
-        __dplg_f_setval "${1%%:*}" "${1#*:}" || return 1
+        eval "__dplg_v_${1%%:*}='${1#*:}'" || return 1
         shift || break
         ;;
       --*=*)
         __dplg_v_key=${1#--}
         __dplg_v_key=${__dplg_v_key%%=*}
-        __dplg_f_setval "${__dplg_v_key}" "${1#*=}" || return 1
+        eval "__dplg_v_${__dplg_v_key}='${1#*=}'" || return 1
         shift || break
         ;;
       --*)
-        __dplg_f_setval "${1#--}" "$2" || return 1
+        eval "__dplg_v_${1#--}='$2'" || return 1
         shift 2 || break
         ;;
       */*)

@@ -247,43 +247,48 @@ __dplg_f_check() {
 }
 
 __dplg_f_status() {
-  local __dplg_v_isdir __dplg_v_iserr
+  local __dplg_v_status __dplg_v_iserr
   __dplg_v_iserr=0
+
+  __dplg_f_init
 
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
 
-    if [[ -d "${__dplg_v_dir}" ]]
+    if [[ 0 -eq ${__dplg_v_verbose} ]]
     then
-      __dplg_v_isdir='Installed'
+      __dplg_v_status="${__dplg_v_plugin}"
     else
-      __dplg_v_isdir='NoInstall'
-      __dplg_v_iserr=1
+      __dplg_v_status="${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})"
     fi
 
-    echo "${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})" |
-    __dplg_f_logger "${__dplg_v_isdir}" | __dplg_f_info
+    if [[ -d "${__dplg_v_dir}" ]]
+    then
+      echo "Installed ${__dplg_v_status}"
+    else
+      echo "NoInstall ${__dplg_v_status}"
+      __dplg_v_iserr=1
+    fi
   done
-
-  if [[ 0 -eq ${__dplg_v_verbose} ]]
-  then return ${__dplg_v_iserr}
-  fi
-
-  __dplg_f_init
 
   while read plug
   do
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
 
-    if [[ -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]]
+    [[ ! -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]] && continue
+
+    if [[ 0 -eq ${__dplg_v_verbose} ]]
     then
-      echo "${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})" |
-      __dplg_f_logger 'Cached' | __dplg_f_info
-      __dplg_v_iserr=1
+      __dplg_v_status="${__dplg_v_plugin}"
+    else
+      __dplg_v_status="${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})"
     fi
+
+    echo "Cached    ${__dplg_v_status}"
+    __dplg_v_iserr=1
   done < ${DEPLUG_STAT}
 
   return ${__dplg_v_iserr}

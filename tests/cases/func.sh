@@ -1,6 +1,10 @@
 testInitial() {
   __dplg_v_debug=1
   __dplg_v_verbose=1
+  __dplg_v_bin=${DEPLUG_HOME}/bin
+  __dplg_v_src=${DEPLUG_HOME}/source
+  __dplg_v_stat=${DEPLUG_HOME}/state
+  __dplg_v_repo=${DEPLUG_HOME}/repos
 
   test -d "${DEPLUG_HOME}" && \rm -r "${DEPLUG_HOME}"
   mkdir -p ${DEPLUG_HOME}/dir "${DEPLUG_HOME}/space dir" "${DEPLUG_BIN}"

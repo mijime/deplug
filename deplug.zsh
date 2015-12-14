@@ -2,11 +2,6 @@
 unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 deplug() {
-  DEPLUG_HOME=${DEPLUG_HOME:-~/.deplug}
-  DEPLUG_STAT=${DEPLUG_STAT:-${DEPLUG_HOME}/state}
-  DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
-  DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
-  DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
   local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
   local __dplg_v_key= \
     __dplg_v_pwd= \
@@ -18,7 +13,16 @@ deplug() {
     __dplg_v_use= \
     __dplg_v_tag= \
     __dplg_v_post= \
-    __dplg_v_from='https://github.com'
+    __dplg_v_from='https://github.com' \
+    __dplg_v_home=${DEPLUG_HOME:-~/.deplug} \
+    __dplg_v_stat= \
+    __dplg_v_repo= \
+    __dplg_v_bin= \
+    __dplg_v_src=
+  __dplg_v_repo=${DEPLUG_REPO:-${__dplg_v_home}/repos}
+  __dplg_v_stat=${DEPLUG_STAT:-${__dplg_v_home}/state}
+  __dplg_v_bin=${DEPLUG_BIN:-${__dplg_v_home}/bin}
+  __dplg_v_src=${DEPLUG_SRC:-${__dplg_v_home}/source}
   __dplg_f_parseArgs "$@"
   if [[ -z "${__dplg_v_cmd}" ]]
   then
@@ -28,9 +32,9 @@ deplug() {
   "__dplg_c_${__dplg_v_cmd}"
 }
 __dplg_c_include() {
-  [[ -f ${DEPLUG_SRC} ]] || __dplg_c_reload
-  echo Included.. ${DEPLUG_SRC} | __dplg_f_verbose
-  source "${DEPLUG_SRC}"
+  [[ -f ${__dplg_v_src} ]] || __dplg_c_reload
+  echo Included.. ${__dplg_v_src} | __dplg_f_verbose
+  source "${__dplg_v_src}"
 }
 __dplg_c_defrost() {
   __dplg_f_init
@@ -39,19 +43,19 @@ __dplg_c_defrost() {
     __dplg_f_parse "${plug}"
     echo "${__dplg_v_plugin}" | __dplg_f_logger 'Append..' | __dplg_f_verbose
     __dplg_c_append
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
 }
 __dplg_c_freeze() {
   __dplg_f_init
   for plug in "${__dplg_v_plugins[@]}"
   do
     echo "${plug}"
-  done > ${DEPLUG_STAT}
+  done > ${__dplg_v_stat}
 }
 __dplg_c_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
   __dplg_f_init
-  echo "export PATH=\${PATH}:${DEPLUG_BIN}" > ${DEPLUG_SRC}
+  echo "export PATH=\${PATH}:\"${__dplg_v_bin}\"" > ${__dplg_v_src}
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
@@ -104,7 +108,7 @@ __dplg_c_clean() {
       echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_info
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
   if [[ ! -z "${__dplg_v_trash[@]}" ]]
   then
     local __dplug_v_ans
@@ -165,7 +169,7 @@ __dplg_c_status() {
     fi
     echo "Cached    ${__dplg_v_status}"
     __dplg_v_iserr=1
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
   return ${__dplg_v_iserr}
 }
 __dplg_c_append() {
@@ -178,8 +182,8 @@ __dplg_c_help() {
   echo
 }
 __dplg_f_init() {
-  mkdir -p ${DEPLUG_HOME} ${DEPLUG_REPO} ${DEPLUG_BIN}
-  touch ${DEPLUG_STAT}
+  mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
+  touch ${__dplg_v_stat}
 }
 __dplg_f_parseArgs() {
   while [[ $# -gt 0 ]]
@@ -230,7 +234,7 @@ __dplg_f_parseArgs() {
   then __dplg_v_as=${__dplg_v_plugin##*/}
   fi
   if [[ -z "${__dplg_v_dir}"  ]]
-  then __dplg_v_dir="${DEPLUG_REPO}/${__dplg_v_as}"
+  then __dplg_v_dir="${__dplg_v_repo}/${__dplg_v_as}"
   fi
 }
 __dplg_f_post() {
@@ -238,8 +242,7 @@ __dplg_f_post() {
   [[ ! -z "${__dplg_v_post}" ]] || return 1
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}"
-  eval ${__dplg_v_post} 2>&1 |
-  __dplg_f_logger ${__dplg_v_plugin} | __dplg_f_logger 'Doing..' | __dplg_f_verbose
+  eval ${__dplg_v_post} 2>&1
   cd "${__dplg_v_pwd}"
 }
 __dplg_f_download() {
@@ -283,17 +286,16 @@ __dplg_f_of() {
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'"
-  done | tee -a "${DEPLUG_SRC}" | __dplg_f_logger 'Include..' | __dplg_f_verbose
+    echo "source '${srcfile}'" | tee -a "${__dplg_v_src}"
+  done | __dplg_f_logger 'Include..' | __dplg_f_verbose
 }
 __dplg_f_use() {
   [[ ! -z ${__dplg_v_use} ]] || return
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
   do
     [[ -z "${usefile}" ]] && continue
-    echo "${usefile}"
-    ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1 |
-    __dplg_f_logger ${usefile} | __dplg_f_logger 'Using..' | __dplg_f_verbose
+    echo "${usefile} => ${__dplg_v_bin}"
+    ln -sf "${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
   done | __dplg_f_logger 'Using..' | __dplg_f_verbose
 }
 __dplg_f_stat() {

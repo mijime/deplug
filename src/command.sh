@@ -4,12 +4,6 @@ unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 
 deplug() {
-  DEPLUG_HOME=${DEPLUG_HOME:-~/.deplug}
-  DEPLUG_STAT=${DEPLUG_STAT:-${DEPLUG_HOME}/state}
-  DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
-  DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
-  DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
-
   local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
   local __dplg_v_key= \
     __dplg_v_pwd= \
@@ -21,7 +15,17 @@ deplug() {
     __dplg_v_use= \
     __dplg_v_tag= \
     __dplg_v_post= \
-    __dplg_v_from='https://github.com'
+    __dplg_v_from='https://github.com' \
+    __dplg_v_home=${DEPLUG_HOME:-~/.deplug} \
+    __dplg_v_stat= \
+    __dplg_v_repo= \
+    __dplg_v_bin= \
+    __dplg_v_src=
+
+  __dplg_v_repo=${DEPLUG_REPO:-${__dplg_v_home}/repos}
+  __dplg_v_stat=${DEPLUG_STAT:-${__dplg_v_home}/state}
+  __dplg_v_bin=${DEPLUG_BIN:-${__dplg_v_home}/bin}
+  __dplg_v_src=${DEPLUG_SRC:-${__dplg_v_home}/source}
 
   __dplg_f_parseArgs "$@"
 
@@ -35,10 +39,10 @@ deplug() {
 }
 
 __dplg_c_include() {
-  [[ -f ${DEPLUG_SRC} ]] || __dplg_c_reload
+  [[ -f ${__dplg_v_src} ]] || __dplg_c_reload
 
-  echo Included.. ${DEPLUG_SRC} | __dplg_f_verbose
-  source "${DEPLUG_SRC}"
+  echo Included.. ${__dplg_v_src} | __dplg_f_verbose
+  source "${__dplg_v_src}"
 }
 
 __dplg_c_defrost() {
@@ -51,7 +55,7 @@ __dplg_c_defrost() {
 
     echo "${__dplg_v_plugin}" | __dplg_f_logger 'Append..' | __dplg_f_verbose
     __dplg_c_append
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
 }
 
 __dplg_c_freeze() {
@@ -61,14 +65,14 @@ __dplg_c_freeze() {
   do
     echo "${plug}" | __dplg_f_logger 'freeze' | __dplg_f_debug
     echo "${plug}"
-  done > ${DEPLUG_STAT}
+  done > ${__dplg_v_stat}
 }
 
 __dplg_c_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
 
   __dplg_f_init
-  echo "export PATH=\${PATH}:${DEPLUG_BIN}" > ${DEPLUG_SRC}
+  echo "export PATH=\${PATH}:\"${__dplg_v_bin}\"" > ${__dplg_v_src}
 
   for plug in "${__dplg_v_plugins[@]}"
   do
@@ -141,7 +145,7 @@ __dplg_c_clean() {
       echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_info
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
 
   if [[ ! -z "${__dplg_v_trash[@]}" ]]
   then
@@ -221,7 +225,7 @@ __dplg_c_status() {
 
     echo "Cached    ${__dplg_v_status}"
     __dplg_v_iserr=1
-  done < ${DEPLUG_STAT}
+  done < ${__dplg_v_stat}
 
   return ${__dplg_v_iserr}
 }

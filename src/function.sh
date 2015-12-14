@@ -1,6 +1,6 @@
 __dplg_f_init() {
-  mkdir -p ${DEPLUG_HOME} ${DEPLUG_REPO} ${DEPLUG_BIN}
-  touch ${DEPLUG_STAT}
+  mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
+  touch ${__dplg_v_stat}
 }
 
 __dplg_f_parseArgs() {
@@ -62,7 +62,7 @@ __dplg_f_parseArgs() {
   fi
 
   if [[ -z "${__dplg_v_dir}"  ]]
-  then __dplg_v_dir="${DEPLUG_REPO}/${__dplg_v_as}"
+  then __dplg_v_dir="${__dplg_v_repo}/${__dplg_v_as}"
   fi
 }
 
@@ -74,8 +74,7 @@ __dplg_f_post() {
 
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}"
-  eval ${__dplg_v_post} 2>&1 |
-  __dplg_f_logger ${__dplg_v_plugin} | __dplg_f_logger 'Doing..' | __dplg_f_verbose
+  eval ${__dplg_v_post} 2>&1
   cd "${__dplg_v_pwd}"
 }
 
@@ -132,8 +131,8 @@ __dplg_f_of() {
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'"
-  done | tee -a "${DEPLUG_SRC}" | __dplg_f_logger 'Include..' | __dplg_f_verbose
+    echo "source '${srcfile}'" | tee -a "${__dplg_v_src}"
+  done | __dplg_f_logger 'Include..' | __dplg_f_verbose
 }
 
 __dplg_f_use() {
@@ -144,9 +143,8 @@ __dplg_f_use() {
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
   do
     [[ -z "${usefile}" ]] && continue
-    echo "${usefile}"
-    ln -sf "${usefile}" ${DEPLUG_BIN} 2>&1 |
-    __dplg_f_logger ${usefile} | __dplg_f_logger 'Using..' | __dplg_f_verbose
+    echo "${usefile} => ${__dplg_v_bin}"
+    ln -sf "${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
   done | __dplg_f_logger 'Using..' | __dplg_f_verbose
 }
 

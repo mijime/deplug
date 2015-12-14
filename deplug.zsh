@@ -111,7 +111,7 @@ __dplg_c_clean() {
     __dplg_f_parse "${plug}"
     if [[ -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]]
     then
-      echo -e "${__dplg_v_colo[gre]}Cleaning.. ${__dplg_v_dir}${__dplg_v_colo[res]}"
+      echo -e "${__dplg_v_colo[yel]}Cleaning.. ${__dplg_v_dir}${__dplg_v_colo[res]}"
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
   done < ${__dplg_v_state}

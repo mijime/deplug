@@ -12,7 +12,8 @@ export DEPLUG_SRC=${cdir}/tmp/bash/source
 export DEPLUG_STAT=${cdir}/tmp/bash/state
 export DEPLUG_REPO=${cdir}/tmp/bash/repos
 
-source ${cdir}/../src/common.sh
+source ${cdir}/../src/command.sh
+source ${cdir}/../src/function.sh
 source ${cdir}/../src/bash/*.bash
 source ${cdir}/utils/*.sh
 ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase

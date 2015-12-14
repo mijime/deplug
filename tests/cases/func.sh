@@ -20,7 +20,6 @@ testCase() {
   evalute 'of'      __dplg_f_of
   evalute 'use'     __dplg_f_use
   evalute 'post'    __dplg_f_post
-  evalute 'include' __dplg_f_include
 }
 
 testCaseSpace() {
@@ -29,7 +28,6 @@ testCaseSpace() {
   evalute 'spacedir stat'    __dplg_f_stat
   evalute 'spacedir of'      __dplg_f_of
   evalute 'spacedir use'     __dplg_f_use
-  evalute 'spacedir include' __dplg_f_include
   # evalute 'spacedir post'    __dplg_f_post # TODO
 }
 

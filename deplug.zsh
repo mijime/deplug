@@ -127,15 +127,6 @@ __dplg_c_clean() {
     fi
   fi
 }
-__dplg_c_check() {
-  for plug in "${__dplg_v_plugins[@]}"
-  do
-    __dplg_f_parse "${plug}"
-    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Checking..' | __dplg_f_verbose
-    [[ -d "${__dplg_v_dir}" ]] || return 1
-  done
-  return 0
-}
 __dplg_c_status() {
   local __dplg_v_status __dplg_v_iserr
   __dplg_v_iserr=0

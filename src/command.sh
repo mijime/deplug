@@ -169,19 +169,6 @@ __dplg_c_clean() {
   fi
 }
 
-__dplg_c_check() {
-  for plug in "${__dplg_v_plugins[@]}"
-  do
-    __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'check' | __dplg_f_debug
-
-    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Checking..' | __dplg_f_verbose
-    [[ -d "${__dplg_v_dir}" ]] || return 1
-  done
-
-  return 0
-}
-
 __dplg_c_status() {
   local __dplg_v_status __dplg_v_iserr
   __dplg_v_iserr=0

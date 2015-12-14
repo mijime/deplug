@@ -131,7 +131,7 @@ __dplg_c_check() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Checking..' | __dplg_f_verbose
+    echo "Checking.. ${__dplg_v_plugin}" | __dplg_f_verbose
     [[ -d "${__dplg_v_dir}" ]] || return 1
   done
   return 0

@@ -2,7 +2,8 @@
 unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 deplug() {
-  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
+  local -A __dplg_v_colo=()
+  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0 __dplg_v_usecolo=1
   local __dplg_v_key= \
     __dplg_v_pwd= \
     __dplg_v_cmd= \
@@ -41,7 +42,7 @@ __dplg_c_defrost() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Append..' | __dplg_f_verbose
+    echo "Append.. ${__dplg_v_plugin}" | __dplg_f_verbose
     __dplg_c_append
   done < ${__dplg_v_stat}
 }
@@ -59,11 +60,9 @@ __dplg_c_reload() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    {
-      __dplg_f_of
-      __dplg_f_use
-    } &
-  done | cat
+    __dplg_f_of
+    __dplg_f_use
+  done
 }
 __dplg_c_install() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
@@ -72,10 +71,10 @@ __dplg_c_install() {
   do
     __dplg_f_parse "${plug}"
     {
-      echo "Install.. ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "Install.. ${__dplg_v_plugin}" | __dplg_f_info
       __dplg_f_download 2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
       __dplg_f_post     2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
-      echo "Installed ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "Installed ${__dplg_v_plugin}" | __dplg_f_info
     } &
   done | cat
   __dplg_c_freeze
@@ -142,9 +141,9 @@ __dplg_c_status() {
     fi
     if [[ -d "${__dplg_v_dir}" ]]
     then
-      echo "Installed ${__dplg_v_status}"
+      echo -e "${__dplg_v_colo[cya]}Installed ${__dplg_v_status}${__dplg_v_colo[res]}"
     else
-      echo "NoInstall ${__dplg_v_status}"
+      echo -e "${__dplg_v_colo[red]}NoInstall ${__dplg_v_status}${__dplg_v_colo[res]}"
       __dplg_v_iserr=1
     fi
   done
@@ -158,7 +157,7 @@ __dplg_c_status() {
     else
       __dplg_v_status="${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})"
     fi
-    echo "Cached    ${__dplg_v_status}"
+    echo -e "${__dplg_v_colo[yel]}Cached    ${__dplg_v_status}${__dplg_v_colo[res]}"
     __dplg_v_iserr=1
   done < ${__dplg_v_stat}
   return ${__dplg_v_iserr}
@@ -188,6 +187,14 @@ __dplg_f_parseArgs() {
         __dplg_v_yes=1
         shift || break
         ;;
+      --color)
+        __dplg_v_usecolo=1
+        shift || break
+        ;;
+      --no-color)
+        __dplg_v_usecolo=0
+        shift || break
+        ;;
       --verbose|-v)
         __dplg_v_verbose=1
         shift || break
@@ -211,7 +218,11 @@ __dplg_f_parseArgs() {
         shift 2 || break
         ;;
       */*)
-        [[ -z "${__dplg_v_cmd}" ]] && __dplg_v_cmd=append
+        if [[ -z "${__dplg_v_cmd}" ]]
+        then
+          __dplg_v_cmd=append
+          __dplg_v_usecolo=0
+        fi
         __dplg_v_plugin=$1
         shift || break
         ;;
@@ -226,6 +237,9 @@ __dplg_f_parseArgs() {
   fi
   if [[ -z "${__dplg_v_dir}"  ]]
   then __dplg_v_dir="${__dplg_v_repo}/${__dplg_v_as}"
+  fi
+  if [[ 1 -eq ${__dplg_v_usecolo} ]]
+  then __dplg_f_color
   fi
 }
 __dplg_f_post() {
@@ -302,10 +316,14 @@ __dplg_f_debug() {
 }
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
-  cat >&2
+  while read line
+  do echo -e "${__dplg_v_colo[yel]}${line}${__dplg_v_colo[res]}"
+  done >&2
 }
 __dplg_f_info() {
-  cat >&2
+  while read line
+  do echo -e "${__dplg_v_colo[cya]}${line}${__dplg_v_colo[res]}"
+  done >&2
 }
 __dplg_f_logger() {
   sed -e "s#^#$1 #g"
@@ -324,4 +342,16 @@ __dplg_f_parse() {
   __dplg_v_use=${__dplg_v_args[6]#use:}
   __dplg_v_post=${__dplg_v_args[7]#post:}
   __dplg_v_from=${__dplg_v_args[8]#from:}
+}
+__dplg_f_color(){
+  autoload -Uz colors &&colors
+  __dplg_v_colo[bla]="${fg[black]}"
+  __dplg_v_colo[red]="${fg[red]}"
+  __dplg_v_colo[gre]="${fg[green]}"
+  __dplg_v_colo[yel]="${fg[yellow]}"
+  __dplg_v_colo[blu]="${fg[blue]}"
+  __dplg_v_colo[mag]="${fg[magenda]}"
+  __dplg_v_colo[cya]="${fg[cyan]}"
+  __dplg_v_colo[whi]="${fg[white]}"
+  __dplg_v_colo[res]="${reset_color}"
 }

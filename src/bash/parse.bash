@@ -11,3 +11,15 @@ __dplg_f_parse() {
   __dplg_v_post=${__dplg_v_args[6]#post:}
   __dplg_v_from=${__dplg_v_args[7]#from:}
 }
+
+__dplg_f_color() {
+  __dplg_v_colo[bla]="\e[0;30m"
+  __dplg_v_colo[red]="\e[0;31m"
+  __dplg_v_colo[gre]="\e[0;32m"
+  __dplg_v_colo[yel]="\e[0;33m"
+  __dplg_v_colo[blu]="\e[0;34m"
+  __dplg_v_colo[mag]="\e[0;35m"
+  __dplg_v_colo[cya]="\e[0;36m"
+  __dplg_v_colo[whi]="\e[0;37m"
+  __dplg_v_colo[res]="\e[m"
+}

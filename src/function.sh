@@ -17,6 +17,16 @@ __dplg_f_parseArgs() {
         shift || break
         ;;
 
+      --color)
+        __dplg_v_usecolo=1
+        shift || break
+        ;;
+
+      --no-color)
+        __dplg_v_usecolo=0
+        shift || break
+        ;;
+
       --verbose|-v)
         __dplg_v_verbose=1
         shift || break
@@ -45,7 +55,11 @@ __dplg_f_parseArgs() {
         ;;
 
       */*)
-        [[ -z "${__dplg_v_cmd}" ]] && __dplg_v_cmd=append
+        if [[ -z "${__dplg_v_cmd}" ]]
+        then
+          __dplg_v_cmd=append
+          __dplg_v_usecolo=0
+        fi
         __dplg_v_plugin=$1
         shift || break
         ;;
@@ -63,6 +77,10 @@ __dplg_f_parseArgs() {
 
   if [[ -z "${__dplg_v_dir}"  ]]
   then __dplg_v_dir="${__dplg_v_repo}/${__dplg_v_as}"
+  fi
+
+  if [[ 1 -eq ${__dplg_v_usecolo} ]]
+  then __dplg_f_color
   fi
 }
 
@@ -167,11 +185,15 @@ __dplg_f_debug() {
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
 
-  cat >&2
+  while read line
+  do echo -e "${__dplg_v_colo[yel]}${line}${__dplg_v_colo[res]}"
+  done >&2
 }
 
 __dplg_f_info() {
-  cat >&2
+  while read line
+  do echo -e "${__dplg_v_colo[cya]}${line}${__dplg_v_colo[res]}"
+  done >&2
 }
 
 __dplg_f_logger() {

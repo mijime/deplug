@@ -4,7 +4,8 @@ unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 
 deplug() {
-  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
+  local -A __dplg_v_colo=()
+  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0 __dplg_v_usecolo=1
   local __dplg_v_key= \
     __dplg_v_pwd= \
     __dplg_v_cmd= \
@@ -53,7 +54,7 @@ __dplg_c_defrost() {
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'defrost' | __dplg_f_debug
 
-    echo "${__dplg_v_plugin}" | __dplg_f_logger 'Append..' | __dplg_f_verbose
+    echo "Append.. ${__dplg_v_plugin}" | __dplg_f_verbose
     __dplg_c_append
   done < ${__dplg_v_stat}
 }
@@ -79,11 +80,9 @@ __dplg_c_reload() {
     __dplg_f_parse "${plug}"
     __dplg_f_stat | __dplg_f_logger 'reload' | __dplg_f_debug
 
-    {
-      __dplg_f_of
-      __dplg_f_use
-    } &
-  done | cat
+    __dplg_f_of
+    __dplg_f_use
+  done
 }
 
 __dplg_c_install() {
@@ -97,10 +96,10 @@ __dplg_c_install() {
     __dplg_f_stat | __dplg_f_logger 'install' | __dplg_f_debug
 
     {
-      echo "Install.. ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "Install.. ${__dplg_v_plugin}" | __dplg_f_info
       __dplg_f_download 2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
       __dplg_f_post     2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
-      echo "Installed ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "Installed ${__dplg_v_plugin}" | __dplg_f_info
     } &
   done | cat
 
@@ -189,9 +188,9 @@ __dplg_c_status() {
 
     if [[ -d "${__dplg_v_dir}" ]]
     then
-      echo "Installed ${__dplg_v_status}"
+      echo -e "${__dplg_v_colo[cya]}Installed ${__dplg_v_status}${__dplg_v_colo[res]}"
     else
-      echo "NoInstall ${__dplg_v_status}"
+      echo -e "${__dplg_v_colo[red]}NoInstall ${__dplg_v_status}${__dplg_v_colo[res]}"
       __dplg_v_iserr=1
     fi
   done
@@ -210,7 +209,7 @@ __dplg_c_status() {
       __dplg_v_status="${__dplg_v_plugin} (as:${__dplg_v_as}, dir:${__dplg_v_dir})"
     fi
 
-    echo "Cached    ${__dplg_v_status}"
+    echo -e "${__dplg_v_colo[yel]}Cached    ${__dplg_v_status}${__dplg_v_colo[res]}"
     __dplg_v_iserr=1
   done < ${__dplg_v_stat}
 

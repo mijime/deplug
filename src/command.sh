@@ -5,7 +5,7 @@ declare -A __dplg_v_plugins=()
 
 deplug() {
   local -A __dplg_v_colo=()
-  local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0 __dplg_v_usecolo=1
+  local __dplg_v_errcode=0 __dplg_v_verbose=0 __dplg_v_yes=0 __dplg_v_usecolo=1
   local __dplg_v_key= \
     __dplg_v_pwd= \
     __dplg_v_cmd= \
@@ -52,8 +52,6 @@ __dplg_c_defrost() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'defrost' | __dplg_f_debug
-
     echo "Append.. ${__dplg_v_plugin}" | __dplg_f_verbose
     __dplg_c_append
   done < ${__dplg_v_stat}
@@ -63,10 +61,18 @@ __dplg_c_freeze() {
   __dplg_f_init
 
   for plug in "${__dplg_v_plugins[@]}"
-  do
-    echo "${plug}" | __dplg_f_logger 'freeze' | __dplg_f_debug
-    echo "${plug}"
+  do echo "${plug}"
   done > ${__dplg_v_stat}
+}
+
+__dplg_c_check() {
+  __dplg_f_init
+
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    [[ ! -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]] || return 1
+  done < ${__dplg_v_stat}
 }
 
 __dplg_c_reload() {
@@ -78,8 +84,6 @@ __dplg_c_reload() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'reload' | __dplg_f_debug
-
     __dplg_f_of
     __dplg_f_use
   done
@@ -93,13 +97,12 @@ __dplg_c_install() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'install' | __dplg_f_debug
 
     {
-      echo -e "Install.. ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "${__dplg_v_colo[gre]}Install.. ${__dplg_v_plugin}${__dplg_v_colo[res]}"
       __dplg_f_download 2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
       __dplg_f_post     2>&1 | __dplg_f_logger "Install.. ${__dplg_v_plugin}" | __dplg_f_verbose
-      echo -e "Installed ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "${__dplg_v_colo[cya]}Installed ${__dplg_v_plugin}${__dplg_v_colo[res]}"
     } &
   done | cat
 
@@ -115,13 +118,12 @@ __dplg_c_update() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'update' | __dplg_f_debug
 
     {
-      echo "Update.. ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "${__dplg_v_colo[gre]}Update.. ${__dplg_v_plugin}${__dplg_v_colo[res]}"
       __dplg_f_update 2>&1 | __dplg_f_logger "Update.. ${__dplg_v_plugin}" | __dplg_f_verbose
       __dplg_f_post   2>&1 | __dplg_f_logger "Update.. ${__dplg_v_plugin}" | __dplg_f_verbose
-      echo "Updated  ${__dplg_v_plugin}" | __dplg_f_info
+      echo -e "${__dplg_v_colo[cya]}Updated  ${__dplg_v_plugin}${__dplg_v_colo[res]}"
     } &
   done | cat
 
@@ -137,11 +139,10 @@ __dplg_c_clean() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'clean' | __dplg_f_debug
 
     if [[ -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]]
     then
-      echo "${__dplg_v_dir}" | __dplg_f_logger 'Cleaning..' | __dplg_f_info
+      echo -e "${__dplg_v_colo[gre]}Cleaning.. ${__dplg_v_dir}${__dplg_v_colo[res]}"
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
   done < ${__dplg_v_stat}
@@ -152,7 +153,7 @@ __dplg_c_clean() {
 
     if [[ 0 -eq ${__dplg_v_yes} ]]
     then
-      echo -n 'Do you really want to clean? [y/N]: '
+      echo -n -e "${__dplg_v_colo[red]}Do you really want to clean? [y/N]: ${__dplg_v_colo[res]}"
       read __dplug_v_ans
       echo
     else
@@ -177,7 +178,6 @@ __dplg_c_status() {
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
 
     if [[ 0 -eq ${__dplg_v_verbose} ]]
     then
@@ -198,7 +198,6 @@ __dplg_c_status() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    __dplg_f_stat | __dplg_f_logger 'status' | __dplg_f_debug
 
     [[ ! -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]] && continue
 
@@ -217,14 +216,10 @@ __dplg_c_status() {
 }
 
 __dplg_c_append() {
-  __dplg_f_stat | __dplg_f_logger 'append' | __dplg_f_debug
-
   __dplg_v_plugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}"
 }
 
 __dplg_c_remove() {
-  __dplg_f_stat | __dplg_f_logger 'remove' | __dplg_f_debug
-
   unset __dplg_v_plugins[${__dplg_v_as}]
 }
 

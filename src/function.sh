@@ -7,11 +7,6 @@ __dplg_f_parseArgs() {
   while [[ $# -gt 0 ]]
   do
     case $1 in
-      --debug)
-        __dplg_v_debug=1
-        shift || break
-        ;;
-
       --yes|-y)
         __dplg_v_yes=1
         shift || break
@@ -88,8 +83,6 @@ __dplg_f_post() {
   [[ -d "${__dplg_v_dir}"  ]] || return 1
   [[ ! -z "${__dplg_v_post}" ]] || return 1
 
-  __dplg_f_stat | __dplg_f_logger 'post' | __dplg_f_debug
-
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}"
   eval ${__dplg_v_post} 2>&1
@@ -97,8 +90,6 @@ __dplg_f_post() {
 }
 
 __dplg_f_download() {
-  __dplg_f_stat | __dplg_f_logger 'download' | __dplg_f_debug
-
   __dplg_v_pwd=$(pwd)
   case ${__dplg_v_from} in
     *)
@@ -124,8 +115,6 @@ __dplg_f_update() {
     return 1
   fi
 
-  __dplg_f_stat | __dplg_f_logger 'update' | __dplg_f_debug
-
   __dplg_v_pwd=$(pwd)
   cd ${__dplg_v_dir}
   case ${__dplg_v_from} in
@@ -142,9 +131,7 @@ __dplg_f_update() {
 }
 
 __dplg_f_of() {
-  [[ ! -z "${__dplg_v_of}" ]] || return
-
-  __dplg_f_stat | __dplg_f_logger 'of' | __dplg_f_debug
+  [[ -z "${__dplg_v_of}" ]] && return
 
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
@@ -154,9 +141,7 @@ __dplg_f_of() {
 }
 
 __dplg_f_use() {
-  [[ ! -z ${__dplg_v_use} ]] || return
-
-  __dplg_f_stat | __dplg_f_logger 'use' | __dplg_f_debug
+  [[ -z "${__dplg_v_use}" ]] && return
 
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
   do
@@ -166,33 +151,11 @@ __dplg_f_use() {
   done | __dplg_f_logger 'Using..' | __dplg_f_verbose
 }
 
-__dplg_f_stat() {
-  echo "as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}"
-}
-
-__dplg_f_error() {
-  sed -e 's#^#[ERROR] #g' >&2
-
-  return 1
-}
-
-__dplg_f_debug() {
-  [[ 0 -eq ${__dplg_v_debug} ]] && return
-
-  sed -e 's#^#[DEBUG] #g' >&2
-}
-
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
 
   while read line
-  do echo -e "${__dplg_v_colo[yel]}${line}${__dplg_v_colo[res]}"
-  done >&2
-}
-
-__dplg_f_info() {
-  while read line
-  do echo -e "${__dplg_v_colo[cya]}${line}${__dplg_v_colo[res]}"
+  do echo -e "${__dplg_v_colo[${1:-yel}]}${line}${__dplg_v_colo[res]}"
   done >&2
 }
 
@@ -201,7 +164,5 @@ __dplg_f_logger() {
 }
 
 __dplg_f_glob() {
-  echo "$@" | __dplg_f_logger 'glob' | __dplg_f_debug
-
   eval \\ls -1pd "$@"
 }

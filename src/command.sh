@@ -4,9 +4,14 @@ unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 
 deplug() {
+  DEPLUG_HOME=${DEPLUG_HOME:-~/.deplug}
+  DEPLUG_STAT=${DEPLUG_STAT:-${DEPLUG_HOME}/state}
+  DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
+  DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
+  DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
+
   local __dplg_v_errcode=0 __dplg_v_debug=0 __dplg_v_verbose=0 __dplg_v_yes=0
   local __dplg_v_key= \
-    __dplg_v_home=~/.deplug \
     __dplg_v_pwd= \
     __dplg_v_cmd= \
     __dplg_v_plugin= \
@@ -19,12 +24,6 @@ deplug() {
     __dplg_v_from='https://github.com'
 
   __dplg_f_parseArgs "$@"
-
-  DEPLUG_HOME=${DEPLUG_HOME:-${__dplg_v_home}}
-  DEPLUG_STAT=${DEPLUG_STAT:-${DEPLUG_HOME}/state}
-  DEPLUG_REPO=${DEPLUG_REPO:-${DEPLUG_HOME}/repos}
-  DEPLUG_BIN=${DEPLUG_BIN:-${DEPLUG_HOME}/bin}
-  DEPLUG_SRC=${DEPLUG_SRC:-${DEPLUG_HOME}/source}
 
   if [[ -z "${__dplg_v_cmd}" ]]
   then

@@ -2,8 +2,8 @@ testInitial() {
   __dplg_v_debug=1
   __dplg_v_verbose=1
   __dplg_v_bin=${DEPLUG_HOME}/bin
-  __dplg_v_src=${DEPLUG_HOME}/source
-  __dplg_v_stat=${DEPLUG_HOME}/state
+  __dplg_v_cache=${DEPLUG_HOME}/cache
+  __dplg_v_state=${DEPLUG_HOME}/state
   __dplg_v_repo=${DEPLUG_HOME}/repos
 
   test -d "${DEPLUG_HOME}" && \rm -r "${DEPLUG_HOME}"
@@ -20,7 +20,6 @@ testInitial() {
 testCase() {
   evalute 'glob'    __dplg_f_glob "${DEPLUG_HOME}/dir"
   evalute 'parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
-  evalute 'stat'    __dplg_f_stat
   evalute 'of'      __dplg_f_of
   evalute 'use'     __dplg_f_use
   evalute 'post'    __dplg_f_post
@@ -29,7 +28,6 @@ testCase() {
 testCaseSpace() {
   evalute 'spacedir glob'    __dplg_f_glob "${DEPLUG_HOME}/space\ dir"
   evalute 'spacedir parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/space\ dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
-  evalute 'spacedir stat'    __dplg_f_stat
   evalute 'spacedir of'      __dplg_f_of
   evalute 'spacedir use'     __dplg_f_use
   # evalute 'spacedir post'    __dplg_f_post # TODO

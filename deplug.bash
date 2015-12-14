@@ -16,14 +16,14 @@ deplug() {
     __dplg_v_post= \
     __dplg_v_from='https://github.com' \
     __dplg_v_home=${DEPLUG_HOME:-~/.deplug} \
-    __dplg_v_stat= \
+    __dplg_v_state= \
     __dplg_v_repo= \
     __dplg_v_bin= \
-    __dplg_v_src=
+    __dplg_v_cache=
   __dplg_v_repo=${DEPLUG_REPO:-${__dplg_v_home}/repos}
-  __dplg_v_stat=${DEPLUG_STAT:-${__dplg_v_home}/state}
+  __dplg_v_state=${DEPLUG_STATE:-${__dplg_v_home}/state}
   __dplg_v_bin=${DEPLUG_BIN:-${__dplg_v_home}/bin}
-  __dplg_v_src=${DEPLUG_SRC:-${__dplg_v_home}/source}
+  __dplg_v_cache=${DEPLUG_CACHE:-${__dplg_v_home}/cache}
   __dplg_f_parseArgs "$@"
   if [[ -z "${__dplg_v_cmd}" ]]
   then
@@ -33,9 +33,9 @@ deplug() {
   "__dplg_c_${__dplg_v_cmd}"
 }
 __dplg_c_include() {
-  [[ -f ${__dplg_v_src} ]] || __dplg_c_reload
-  echo Included.. ${__dplg_v_src} | __dplg_f_verbose
-  source "${__dplg_v_src}"
+  [[ -f ${__dplg_v_cache} ]] || __dplg_c_reload
+  echo Included.. ${__dplg_v_cache} | __dplg_f_verbose
+  source "${__dplg_v_cache}"
 }
 __dplg_c_defrost() {
   __dplg_f_init
@@ -44,13 +44,13 @@ __dplg_c_defrost() {
     __dplg_f_parse "${plug}"
     echo "Append.. ${__dplg_v_plugin}" | __dplg_f_verbose
     __dplg_c_append
-  done < ${__dplg_v_stat}
+  done < ${__dplg_v_state}
 }
 __dplg_c_freeze() {
   __dplg_f_init
   for plug in "${__dplg_v_plugins[@]}"
   do echo "${plug}"
-  done > ${__dplg_v_stat}
+  done > ${__dplg_v_state}
 }
 __dplg_c_check() {
   __dplg_f_init
@@ -58,12 +58,12 @@ __dplg_c_check() {
   do
     __dplg_f_parse "${plug}"
     [[ ! -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]] || return 1
-  done < ${__dplg_v_stat}
+  done < ${__dplg_v_state}
 }
 __dplg_c_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
   __dplg_f_init
-  echo "export PATH=\${PATH}:\"${__dplg_v_bin}\"" > ${__dplg_v_src}
+  echo "export PATH=\${PATH}:\"${__dplg_v_bin}\"" > ${__dplg_v_cache}
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"
@@ -114,7 +114,7 @@ __dplg_c_clean() {
       echo -e "${__dplg_v_colo[gre]}Cleaning.. ${__dplg_v_dir}${__dplg_v_colo[res]}"
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")
     fi
-  done < ${__dplg_v_stat}
+  done < ${__dplg_v_state}
   if [[ ! -z "${__dplg_v_trash[@]}" ]]
   then
     local __dplug_v_ans
@@ -166,7 +166,7 @@ __dplg_c_status() {
     fi
     echo -e "${__dplg_v_colo[yel]}Cached    ${__dplg_v_status}${__dplg_v_colo[res]}"
     __dplg_v_iserr=1
-  done < ${__dplg_v_stat}
+  done < ${__dplg_v_state}
   return ${__dplg_v_iserr}
 }
 __dplg_c_append() {
@@ -180,7 +180,7 @@ __dplg_c_help() {
 }
 __dplg_f_init() {
   mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
-  touch ${__dplg_v_stat}
+  touch ${__dplg_v_state}
 }
 __dplg_f_parseArgs() {
   while [[ $# -gt 0 ]]
@@ -294,7 +294,7 @@ __dplg_f_of() {
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'" | tee -a "${__dplg_v_src}"
+    echo "source '${srcfile}'" | tee -a "${__dplg_v_cache}"
   done | __dplg_f_logger 'Include..' | __dplg_f_verbose
 }
 __dplg_f_use() {

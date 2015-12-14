@@ -1,6 +1,6 @@
 __dplg_f_init() {
   mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
-  touch ${__dplg_v_stat}
+  touch ${__dplg_v_state}
 }
 
 __dplg_f_parseArgs() {
@@ -136,7 +136,7 @@ __dplg_f_of() {
   __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'" | tee -a "${__dplg_v_src}"
+    echo "source '${srcfile}'" | tee -a "${__dplg_v_cache}"
   done | __dplg_f_logger 'Include..' | __dplg_f_verbose
 }
 

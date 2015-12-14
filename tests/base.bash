@@ -8,8 +8,8 @@ cdir=${0%/*}
 
 export DEPLUG_HOME=${cdir}/tmp/bash
 export DEPLUG_BIN=${cdir}/tmp/bash/bin
-export DEPLUG_SRC=${cdir}/tmp/bash/source
-export DEPLUG_STAT=${cdir}/tmp/bash/state
+export DEPLUG_CACHE=${cdir}/tmp/bash/cache
+export DEPLUG_STATE=${cdir}/tmp/bash/state
 export DEPLUG_REPO=${cdir}/tmp/bash/repos
 
 source ${cdir}/../src/command.sh

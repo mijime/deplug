@@ -1,5 +1,5 @@
-state*
-source*
+*state*
+*cache*
 repos/
 bin/
 *.bk

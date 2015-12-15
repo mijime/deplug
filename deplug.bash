@@ -1,4 +1,3 @@
-#!/bin/bash
 unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 deplug() {
@@ -291,20 +290,28 @@ __dplg_f_update() {
 }
 __dplg_f_of() {
   [[ -z "${__dplg_v_of}" ]] && return
-  __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
+  [[ -d "${__dplg_v_dir}" ]] || return
+  __dplg_v_pwd=$(pwd)
+  cd ${__dplg_v_dir}
+  __dplg_f_glob "${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'" | tee -a "${__dplg_v_cache}"
+    echo "source '${__dplg_v_dir}/${srcfile}'" | tee -a "${__dplg_v_cache}"
   done | __dplg_f_logger 'Include..' | __dplg_f_verbose
+  cd ${__dplg_v_pwd}
 }
 __dplg_f_use() {
   [[ -z "${__dplg_v_use}" ]] && return
-  __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
+  [[ -d "${__dplg_v_dir}" ]] || return
+  __dplg_v_pwd=$(pwd)
+  cd ${__dplg_v_dir}
+  __dplg_f_glob "${__dplg_v_use}" | while read usefile
   do
     [[ -z "${usefile}" ]] && continue
     echo "${usefile} => ${__dplg_v_bin}"
-    ln -sf "${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
+    ln -sf "${__dplg_v_dir}/${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
   done | __dplg_f_logger 'Using..' | __dplg_f_verbose
+  cd ${__dplg_v_pwd}
 }
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return

@@ -1,5 +1,3 @@
-#!/bin/bash
-
 unset __dplg_v_plugins
 declare -A __dplg_v_plugins=()
 

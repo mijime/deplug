@@ -132,23 +132,31 @@ __dplg_f_update() {
 
 __dplg_f_of() {
   [[ -z "${__dplg_v_of}" ]] && return
+  [[ -d "${__dplg_v_dir}" ]] || return
 
-  __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_of}" | while read srcfile
+  __dplg_v_pwd=$(pwd)
+  cd ${__dplg_v_dir}
+  __dplg_f_glob "${__dplg_v_of}" | while read srcfile
   do
     [[ -z "{srcfile}" ]] && continue
-    echo "source '${srcfile}'" | tee -a "${__dplg_v_cache}"
+    echo "source '${__dplg_v_dir}/${srcfile}'" | tee -a "${__dplg_v_cache}"
   done | __dplg_f_logger 'Include..' | __dplg_f_verbose
+  cd ${__dplg_v_pwd}
 }
 
 __dplg_f_use() {
   [[ -z "${__dplg_v_use}" ]] && return
+  [[ -d "${__dplg_v_dir}" ]] || return
 
-  __dplg_f_glob "${__dplg_v_dir}/${__dplg_v_use}" | while read usefile
+  __dplg_v_pwd=$(pwd)
+  cd ${__dplg_v_dir}
+  __dplg_f_glob "${__dplg_v_use}" | while read usefile
   do
     [[ -z "${usefile}" ]] && continue
     echo "${usefile} => ${__dplg_v_bin}"
-    ln -sf "${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
+    ln -sf "${__dplg_v_dir}/${usefile}" "${__dplg_v_bin}" 2>&1 | __dplg_f_logger ${usefile}
   done | __dplg_f_logger 'Using..' | __dplg_f_verbose
+  cd ${__dplg_v_pwd}
 }
 
 __dplg_f_verbose() {

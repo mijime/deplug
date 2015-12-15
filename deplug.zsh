@@ -63,7 +63,7 @@ __dplg_c_check() {
 __dplg_c_reload() {
   [[ -z "${__dplg_v_plugins[@]}" ]] && return
   __dplg_f_init
-  echo "export PATH=\${PATH}:\"${__dplg_v_bin}\"" > ${__dplg_v_cache}
+  echo "export PATH=\"\${PATH}:${__dplg_v_bin}\"" > ${__dplg_v_cache}
   for plug in "${__dplg_v_plugins[@]}"
   do
     __dplg_f_parse "${plug}"

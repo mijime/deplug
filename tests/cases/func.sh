@@ -27,7 +27,7 @@ testCase() {
 
 testCaseSpace() {
   evalute 'spacedir glob'    __dplg_f_glob "${DEPLUG_HOME}/space\ dir"
-  evalute 'spacedir parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/space\ dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+  evalute 'spacedir parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/space dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
   evalute 'spacedir of'      __dplg_f_of
   evalute 'spacedir use'     __dplg_f_use
   # evalute 'spacedir post'    __dplg_f_post # TODO

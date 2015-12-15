@@ -28,7 +28,7 @@ deplug() {
 
   __dplg_f_parseArgs "$@"
 
-  if [[ -z "${__dplg_v_cmd}" ]]
+  if [[ -z ${__dplg_v_cmd} ]]
   then
     __dplg_c_help
     return 1
@@ -74,7 +74,7 @@ __dplg_c_check() {
 }
 
 __dplg_c_reload() {
-  [[ -z "${__dplg_v_plugins[@]}" ]] && return
+  [[ -z ${__dplg_v_plugins[@]} ]] && return
 
   __dplg_f_init
   echo "export PATH=\"\${PATH}:${__dplg_v_bin}\"" > ${__dplg_v_cache}
@@ -88,7 +88,7 @@ __dplg_c_reload() {
 }
 
 __dplg_c_install() {
-  [[ -z "${__dplg_v_plugins[@]}" ]] && return
+  [[ -z ${__dplg_v_plugins[@]} ]] && return
 
   __dplg_f_init
 
@@ -109,7 +109,7 @@ __dplg_c_install() {
 }
 
 __dplg_c_update() {
-  [[ -z "${__dplg_v_plugins[@]}" ]] && return
+  [[ -z ${__dplg_v_plugins[@]} ]] && return
 
   __dplg_f_init
 
@@ -138,7 +138,7 @@ __dplg_c_clean() {
   do
     __dplg_f_parse "${plug}"
 
-    if [[ -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]]
+    if [[ -z ${__dplg_v_plugins[${__dplg_v_as}]} ]]
     then
       echo -e "${__dplg_v_colo[yel]}Cleaning.. ${__dplg_v_dir}${__dplg_v_colo[res]}"
       __dplg_v_trash=("${__dplg_v_trash[@]}" "${__dplg_v_dir}")

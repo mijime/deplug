@@ -6,11 +6,11 @@ SHELL=/usr/bin/bash
 
 cdir=${0%/*}
 
-export DEPLUG_HOME=${cdir}/tmp/bash
-export DEPLUG_BIN=${cdir}/tmp/bash/bin
-export DEPLUG_CACHE=${cdir}/tmp/bash/cache
-export DEPLUG_STATE=${cdir}/tmp/bash/state
-export DEPLUG_REPO=${cdir}/tmp/bash/repos
+export DEPLUG_HOME=/tmp/tests/bash
+export DEPLUG_BIN=/tmp/tests/bash/bin
+export DEPLUG_CACHE=/tmp/tests/bash/cache
+export DEPLUG_STATE=/tmp/tests/bash/state
+export DEPLUG_REPO=/tmp/tests/bash/repos
 
 source ${cdir}/../src/command.sh
 source ${cdir}/../src/function.sh

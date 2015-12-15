@@ -1,5 +1,4 @@
-unset __dplg_v_plugins
-declare -A __dplg_v_plugins=()
+declare -g -A __dplg_v_plugins
 deplug() {
   local -A __dplg_v_colo=()
   local __dplg_v_errcode=0 __dplg_v_verbose=0 __dplg_v_yes=0 __dplg_v_usecolo=1
@@ -30,6 +29,10 @@ deplug() {
     return 1
   fi
   "__dplg_c_${__dplg_v_cmd}"
+}
+__dplg_c_reset() {
+  unset __dplg_v_plugins
+  declare -g -A __dplg_v_plugins=()
 }
 __dplg_c_include() {
   [[ -f ${__dplg_v_cache} ]] || __dplg_c_reload

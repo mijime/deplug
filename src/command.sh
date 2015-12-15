@@ -1,5 +1,4 @@
-unset __dplg_v_plugins
-declare -A __dplg_v_plugins=()
+declare -g -A __dplg_v_plugins
 
 deplug() {
   local -A __dplg_v_colo=()
@@ -35,6 +34,11 @@ deplug() {
   fi
 
   "__dplg_c_${__dplg_v_cmd}"
+}
+
+__dplg_c_reset() {
+  unset __dplg_v_plugins
+  declare -g -A __dplg_v_plugins=()
 }
 
 __dplg_c_include() {

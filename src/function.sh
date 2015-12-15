@@ -171,3 +171,15 @@ __dplg_f_logger() {
 __dplg_f_glob() {
   eval \\ls -1pd "$@"
 }
+
+__dplg_f_color() {
+  __dplg_v_colo[bla]="\033[30m"
+  __dplg_v_colo[red]="\033[31m"
+  __dplg_v_colo[gre]="\033[32m"
+  __dplg_v_colo[yel]="\033[33m"
+  __dplg_v_colo[blu]="\033[34m"
+  __dplg_v_colo[mag]="\033[35m"
+  __dplg_v_colo[cya]="\033[36m"
+  __dplg_v_colo[whi]="\033[37m"
+  __dplg_v_colo[res]="\033[m"
+}

@@ -1,6 +1,6 @@
 __dplg_f_init() {
   mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
-  touch ${__dplg_v_state}
+  touch ${__dplg_v_state} ${__dplg_v_cache}
 }
 
 __dplg_f_parseArgs() {
@@ -84,45 +84,62 @@ __dplg_f_post() {
 
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}" || return 1
-  eval ${__dplg_v_post} 2>&1
-  cd "${__dplg_v_pwd}"
+  eval ${__dplg_v_post}
+  if [[ 0 -eq $? ]]
+  then
+    cd "${__dplg_v_pwd}"
+  else
+    cd "${__dplg_v_pwd}"
+    return 1
+  fi
 }
 
 __dplg_f_download() {
-  __dplg_v_pwd=$(pwd)
   case ${__dplg_v_from} in
     *)
       if [[ ! -d ${__dplg_v_dir} ]]
       then
-        git clone "${__dplg_v_from}/${__dplg_v_plugin}" "${__dplg_v_dir}" 2>&1
+        git clone "${__dplg_v_from}/${__dplg_v_plugin}" "${__dplg_v_dir}"
+        [[ 0 -eq $? ]] || return 1
       fi
 
       if [[ ! -z "${__dplg_v_tag}" ]]
       then
+        __dplg_v_pwd=$(pwd)
         cd "${__dplg_v_dir}" || return 1
         git checkout ${__dplg_v_tag}
-        cd "${__dplg_v_pwd}"
+        if [[ 0 -eq $? ]]
+        then
+          cd "${__dplg_v_pwd}"
+        else
+          cd "${__dplg_v_pwd}"
+          return 1
+        fi
       fi
       ;;
   esac
 }
 
 __dplg_f_update() {
-  if [[ ! -d ${__dplg_v_dir} ]]
-  then
-    echo "[E] isn't installed"
-    return 1
-  fi
-
   __dplg_v_pwd=$(pwd)
   cd "${__dplg_v_dir}" || return 1
   case ${__dplg_v_from} in
     *)
       git pull
+      if [[ 0 -gt $? ]]
+      then
+        cd "${__dplg_v_pwd}"
+        return 1
+      fi
 
       if [[ ! -z "${__dplg_v_tag}" ]]
       then
         git checkout ${__dplg_v_tag}
+        if [[ 0 -gt $? ]]
+        then
+          cd "${__dplg_v_pwd}"
+          return 1
+        fi
       fi
       ;;
   esac
@@ -136,9 +153,9 @@ __dplg_f_of() {
   cd "${__dplg_v_dir}" || return 1
   __dplg_f_glob "${__dplg_v_of}" | while read srcfile
   do
-    [[ -z ${srcfile} ]] && continue
-    echo "source '${__dplg_v_dir}/${srcfile}'" | tee -a "${__dplg_v_cache}"
-  done | __dplg_f_logger 'Include..' | __dplg_f_verbose
+    [[ ! -z ${srcfile} ]] || continue
+    echo "source '${__dplg_v_dir}/${srcfile}'"
+  done
   cd "${__dplg_v_pwd}"
 }
 
@@ -149,23 +166,19 @@ __dplg_f_use() {
   cd "${__dplg_v_dir}" || return 1
   __dplg_f_glob "${__dplg_v_use}" | while read usefile
   do
-    [[ -z ${usefile} ]] && continue
-    echo "${usefile} => ${__dplg_v_bin}/"
-    ln -sf "${__dplg_v_dir}/${usefile}" "${__dplg_v_bin}/" 2>&1 | __dplg_f_logger ${usefile}
-  done | __dplg_f_logger 'Using..' | __dplg_f_verbose
+    [[ ! -z ${usefile} ]] || continue
+    ln -sf "${__dplg_v_dir}/${usefile}" "${__dplg_v_bin}/" 2>&1 | __dplg_f_message
+  done
   cd "${__dplg_v_pwd}"
 }
 
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
-
-  while read line
-  do echo -e "${__dplg_v_colo[${1:-yel}]}${line}${__dplg_v_colo[res]}"
-  done >&2
+  cat
 }
 
 __dplg_f_logger() {
-  sed -e "s#^#$1 #g"
+  sed -e "s#^#$@ #g" >&2
 }
 
 __dplg_f_glob() {

@@ -10,4 +10,5 @@ __dplg_f_parse() {
   __dplg_v_use=${__dplg_v_args[5]#use:}
   __dplg_v_post=${__dplg_v_args[6]#post:}
   __dplg_v_from=${__dplg_v_args[7]#from:}
+  __dplg_v_status=${__dplg_v_args[8]#status:}
 }

@@ -1,5 +1,6 @@
 
 
+TEST_OPTIONS=
 TARGET=deplug.bash deplug.zsh
 COMMON_FILES=$(wildcard src/*.sh)
 BASH_FILES=$(wildcard src/bash/*.bash)
@@ -17,7 +18,7 @@ deplug.zsh: $(COMMON_FILES) $(ZSH_FILES)
 test: $(TEST_FILES)
 
 tests/*.zsh: deplug.zsh
-	zsh -e $@
+	zsh $(TEST_OPTIONS) $@
 
 tests/*.bash: deplug.bash
-	bash -e $@
+	bash $(TEST_OPTIONS) $@

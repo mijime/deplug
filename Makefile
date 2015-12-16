@@ -10,10 +10,10 @@ TEST_FILES=$(wildcard tests/*.zsh tests/*.bash)
 all: $(TARGET)
 
 deplug.bash: $(COMMON_FILES) $(BASH_FILES)
-	cat $^ | grep -v '| \+__dplg_f_debug' | grep -v '^$$' > $@
+	cat $^ | grep -v '\[DEBUG\]' | grep -v '^$$' > $@
 
 deplug.zsh: $(COMMON_FILES) $(ZSH_FILES)
-	cat $^ | grep -v '| \+__dplg_f_debug' | grep -v '^$$' > $@
+	cat $^ | grep -v '\[DEBUG\]' | grep -v '^$$' > $@
 
 test: $(TEST_FILES)
 

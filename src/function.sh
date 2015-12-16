@@ -174,8 +174,17 @@ __dplg_f_use() {
 
 __dplg_f_verbose() {
   [[ 0 -eq ${__dplg_v_verbose} ]] && return
-  cat
+
+  if [[ -z $@ ]]
+  then
+    while read msg
+    do echo -e ${msg} >&2
+    done
+  else
+    echo -e "$@" >&2
+  fi
 }
+
 
 __dplg_f_logger() {
   sed -e "s#^#$@ #g" >&2

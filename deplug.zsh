@@ -162,7 +162,7 @@ __dplg_f_install() {
       __dplg_f_message "${__dplg_v_colo[blu]}Install..${__dplg_v_colo[res]} ${__dplg_v_as}"
       __dplg_v_errmsg=$(__dplg_f_download 2>&1)
       [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
       then
         __dplg_v_errmsg=$(__dplg_f_post 2>&1)
         [[ 0 -eq $? ]] || __dplg_v_errcode=1
@@ -197,7 +197,7 @@ __dplg_f_upgrade() {
       __dplg_f_message "${__dplg_v_colo[blu]}Update.. ${__dplg_v_colo[res]} ${__dplg_v_as}"
       __dplg_v_errmsg=$(__dplg_f_update 2>&1)
       [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
       then
         __dplg_v_errmsg=$(__dplg_f_post 2>&1)
         [[ 0 -eq $? ]] || __dplg_v_errcode=1

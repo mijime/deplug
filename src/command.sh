@@ -49,8 +49,12 @@ __dplg_c_reset() {
 }
 
 __dplg_c_load() {
+  [[ ! -z ${deplugins[@]} ]] || return
+
+  __dplg_f_init
+
   if [[ -f ${__dplg_v_cache} ]]
-  then __dplg_f_save_cache > "${__dplg_v_cache}"
+  then __dplg_f_plugins | __dplg_f_save_cache > "${__dplg_v_cache}"
   fi
 
   source "${__dplg_v_cache}"

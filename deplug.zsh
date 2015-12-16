@@ -125,15 +125,19 @@ __dplg_f_plugins() {
   done
 }
 __dplg_f_install() {
+  local __dplg_v_errmsg= __dplg_v_errcode=0
   while read plug
   do
     __dplg_f_parse "${plug}"
     {
-      __dplg_f_message "${__dplg_v_colo[gre]}Install..${__dplg_v_colo[res]} ${__dplg_v_as}"
+      __dplg_f_message "${__dplg_v_colo[blu]}Install..${__dplg_v_colo[res]} ${__dplg_v_as}"
       __dplg_v_errmsg=$(__dplg_f_download 2>&1)
       [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      __dplg_v_errmsg=$(__dplg_f_post 2>&1)
-      [[ 0 -eq $? ]] || __dplg_v_errcode=1
+      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
+        [[ 0 -eq $? ]] || __dplg_v_errcode=1
+      fi
       if [[ 0 -eq ${__dplg_v_errcode} ]]
       then
         __dplg_f_message "${__dplg_v_colo[cya]}Installed${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
@@ -146,18 +150,22 @@ __dplg_f_install() {
   done | cat
 }
 __dplg_f_upgrade() {
+  local __dplg_v_errmsg= __dplg_v_errcode=0
   while read plug
   do
     __dplg_f_parse "${plug}"
     {
-      __dplg_f_message "${__dplg_v_colo[gre]}Update..${__dplg_v_colo[res]} ${__dplg_v_as}"
+      __dplg_f_message "${__dplg_v_colo[blu]}Update.. ${__dplg_v_colo[res]} ${__dplg_v_as}"
       __dplg_v_errmsg=$(__dplg_f_update 2>&1)
-      [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      __dplg_v_errmsg=(${__dplg_v_errmsg} $(__dplg_f_post 2>&1))
       [[ 0 -eq $? ]] || __dplg_v_errcode=1
       if [[ 0 -eq ${__dplg_v_errcode} ]]
       then
-        __dplg_f_message "${__dplg_v_colo[cya]}Updated ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
+        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
+        [[ 0 -eq $? ]] || __dplg_v_errcode=1
+      fi
+      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_f_message "${__dplg_v_colo[cya]}Updated  ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
         __dplg_f_stringfy 0
       else
         __dplg_f_message "${__dplg_v_colo[mag]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[mag]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"

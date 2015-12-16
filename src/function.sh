@@ -205,6 +205,7 @@ __dplg_f_color() {
   __dplg_v_colo[whi]="\033[37m"
   __dplg_v_colo[res]="\033[m"
 }
+
 __dplg_f_load_cache() {
   source $1
 }

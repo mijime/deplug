@@ -145,13 +145,15 @@ __dplg_c_clean() {
   __dplg_f_plugins | __dplg_f_freeze > ${__dplg_v_state}
 }
 
-__dplg_c_status() {
+__dplg_c_list() {
+  [[ ! -z ${deplugins[@]} ]] || return
+
+  __dplg_f_init
+
   local __dplg_v_display=
   local __dplg_v_iserr=0
 
-  if [[ 0 -gt ${__dplg_v_verbose} ]]
-  then __dplg_f_check_plugins < ${__dplg_v_state}
-  fi
+  __dplg_f_check_plugins < ${__dplg_v_state}
 
   for plug in "${deplugins[@]}"
   do

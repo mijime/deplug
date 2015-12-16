@@ -167,12 +167,16 @@ __dplg_f_install() {
         __dplg_v_errmsg=$(__dplg_f_post 2>&1)
         [[ 0 -eq $? ]] || __dplg_v_errcode=1
       fi
+      if [[ 0 -eq ${__dplg_v_verbose} ]]
+      then
+        __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      fi
       if [[ 0 -eq ${__dplg_v_errcode} ]]
       then
-        __dplg_f_message "${__dplg_v_colo[cya]}Installed${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
+        __dplg_f_message "${__dplg_v_colo[cya]}Installed${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
         __dplg_f_stringify 0
       else
-        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
+        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
         __dplg_f_stringify 4
       fi
     } &
@@ -198,12 +202,16 @@ __dplg_f_upgrade() {
         __dplg_v_errmsg=$(__dplg_f_post 2>&1)
         [[ 0 -eq $? ]] || __dplg_v_errcode=1
       fi
+      if [[ 0 -eq ${__dplg_v_verbose} ]]
+      then
+        __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      fi
       if [[ 0 -eq ${__dplg_v_errcode} ]]
       then
-        __dplg_f_message "${__dplg_v_colo[cya]}Updated  ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
+        __dplg_f_message "${__dplg_v_colo[cya]}Updated  ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
         __dplg_f_stringify 0
       else
-        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg[@]}${__dplg_v_colo[res]}"
+        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
         __dplg_f_stringify 4
       fi
     } &

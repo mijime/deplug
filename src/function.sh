@@ -205,3 +205,200 @@ __dplg_f_color() {
   __dplg_v_colo[whi]="\033[37m"
   __dplg_v_colo[res]="\033[m"
 }
+__dplg_f_load_cache() {
+  source $1
+}
+
+__dplg_f_save_cache() {
+  echo "export PATH=\"\${PATH}:${__dplg_v_bin}\""
+
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    [[ 0 -eq ${__dplg_v_status} ]] || continue
+
+    {
+      __dplg_f_of
+      __dplg_f_use
+    } &
+  done | cat
+}
+
+__dplg_f_message() {
+  if [[ -z $@ ]]
+  then
+    while read msg
+    do echo -e ${msg} >&2
+    done
+  else
+    echo -e "$@" >&2
+  fi
+}
+
+__dplg_f_check_plugins() {
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stringify | sed -e 's/^/[DEBUG] check previous /g' | __dplg_f_verbose
+
+    [[ ! -z ${__dplg_v_as} ]] || continue
+
+    if [[ -z ${deplugins[${__dplg_v_as}]} ]]
+    then
+      __dplg_f_append 3
+      continue
+    fi
+
+    local curr_status=${deplugins[${__dplg_v_as}]##*status:}
+
+    if [[ 0 -gt ${curr_status} ]]
+    then continue
+    fi
+
+    if [[ ${plug} != ${deplugins[${__dplg_v_as}]} ]]
+    then
+      __dplg_f_parse "${deplugins[${__dplg_v_as}]}"
+      __dplg_f_append 2
+    fi
+  done
+}
+
+__dplg_f_defrost() {
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stringify | sed -e 's/^/[DEBUG] defrost /g' | __dplg_f_verbose
+
+    [[ ! -z ${__dplg_v_as} ]] || continue
+
+    __dplg_f_append
+  done
+}
+
+__dplg_f_freeze() {
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+    __dplg_f_stringify | sed -e 's/^/[DEBUG] freeze /g' | __dplg_f_verbose
+
+    [[ ! -z ${__dplg_v_as} ]] || continue
+
+    __dplg_f_stringify
+  done
+}
+
+__dplg_f_plugins() {
+  for plug in "${deplugins[@]}"
+  do echo ${plug}
+  done
+}
+
+__dplg_f_install() {
+  local __dplg_v_errmsg= __dplg_v_errcode=0
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+
+    __dplg_f_stringify | sed -e 's/^/[DEBUG] install /g' | __dplg_f_verbose
+
+    case ${__dplg_v_status} in
+      0|3)
+        __dplg_f_stringify ${__dplg_v_status}
+        continue
+        ;;
+    esac
+
+    {
+      __dplg_f_message "${__dplg_v_colo[blu]}Install..${__dplg_v_colo[res]} ${__dplg_v_as}"
+
+      __dplg_v_errmsg=$(__dplg_f_download 2>&1)
+      [[ 0 -eq $? ]] || __dplg_v_errcode=1
+
+      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
+        [[ 0 -eq $? ]] || __dplg_v_errcode=1
+      fi
+
+      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
+      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
+      fi
+
+      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_f_message "${__dplg_v_colo[cya]}Installed${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
+        __dplg_f_stringify 0
+      else
+        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
+        __dplg_f_stringify 4
+      fi
+
+    } &
+  done | cat
+}
+
+__dplg_f_upgrade() {
+  local __dplg_v_errmsg= __dplg_v_errcode=0
+  while read plug
+  do
+    __dplg_f_parse "${plug}"
+
+    case ${__dplg_v_status} in
+      3)
+        __dplg_f_stringify ${__dplg_v_status}
+        continue
+        ;;
+    esac
+
+    {
+      __dplg_f_message "${__dplg_v_colo[blu]}Update.. ${__dplg_v_colo[res]} ${__dplg_v_as}"
+
+      __dplg_v_errmsg=$(__dplg_f_update 2>&1)
+      [[ 0 -eq $? ]] || __dplg_v_errcode=1
+
+      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
+        [[ 0 -eq $? ]] || __dplg_v_errcode=1
+      fi
+
+      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
+      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
+      fi
+
+      if [[ 0 -eq ${__dplg_v_errcode} ]]
+      then
+        __dplg_f_message "${__dplg_v_colo[cya]}Updated  ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
+        __dplg_f_stringify 0
+      else
+        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
+        __dplg_f_stringify 4
+      fi
+
+    } &
+  done | cat
+}
+
+__dplg_f_stringify() {
+  [[ ! -z ${__dplg_v_as} ]] || return
+
+  echo "as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
+}
+
+__dplg_f_append() {
+  # status 0 ... already installed
+  # status 1 ... not install
+  # status 2 ... changed
+  # status 3 ... cached
+  # status 4 ... error
+
+  [[ ! -z ${__dplg_v_as} ]] || return
+
+  deplugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
+}
+
+__dplg_f_remove() {
+  unset "deplugins[${__dplg_v_as}]"
+}

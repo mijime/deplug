@@ -3,8 +3,8 @@
 TEST_OPTIONS=
 TARGET=deplug.bash deplug.zsh
 COMMON_FILES=$(wildcard src/*.sh)
-BASH_FILES=$(wildcard src/bash/*.bash)
-ZSH_FILES=$(wildcard src/zsh/*.zsh)
+BASH_FILES=$(wildcard src/*.bash)
+ZSH_FILES=$(wildcard src/*.zsh)
 TEST_FILES=$(wildcard tests/*.zsh tests/*.bash)
 
 all: $(TARGET)

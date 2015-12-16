@@ -1,21 +1,24 @@
 #!/usr/bin/zsh -e
 
-TEST_CASE=zsh
 TEST_TARGET=${TEST_TARGET:-.*}
-SHELL=/usr/bin/zsh
-
 cdir=${0%/*}
 
-export DEPLUG_HOME=/tmp/tests/zsh
-export DEPLUG_BIN=/tmp/tests/zsh/bin
-export DEPLUG_CACHE=/tmp/tests/zsh/cache
-export DEPLUG_STATE=/tmp/tests/zsh/state
-export DEPLUG_REPO=/tmp/tests/zsh/repos
+include_files() {
+  cat <<EOF
+  TEST_CASE=zsh
+  SHELL=/usr/bin/zsh
 
-source ${cdir}/../src/command.sh
-source ${cdir}/../src/function.sh
-source ${cdir}/../src/zsh/*.zsh
-source ${cdir}/utils/*.sh
-ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | while read testcase
-do source ${testcase}
-done
+  export DEPLUG_HOME=/tmp/tests/zsh
+  export DEPLUG_BIN=/tmp/tests/zsh/bin
+  export DEPLUG_CACHE=/tmp/tests/zsh/cache
+  export DEPLUG_STATE=/tmp/tests/zsh/state
+  export DEPLUG_REPO=/tmp/tests/zsh/repos
+EOF
+  cat ${cdir}/../src/command.sh
+  cat ${cdir}/../src/function.sh
+  cat ${cdir}/../src/*.zsh
+  cat ${cdir}/utils/*.sh
+  ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | xargs cat
+}
+
+include_files | zsh

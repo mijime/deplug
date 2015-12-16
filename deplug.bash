@@ -1,4 +1,4 @@
-declare -g -A __dplg_v_plugins
+declare -g -A deplugins
 deplug() {
   local -A __dplg_v_colo=()
   local \
@@ -37,8 +37,8 @@ deplug() {
   "__dplg_c_${__dplg_v_cmd}"
 }
 __dplg_c_reset() {
-  unset __dplg_v_plugins
-  declare -g -A __dplg_v_plugins=()
+  unset deplugins
+  declare -g -A deplugins=()
 }
 __dplg_c_include() {
   [[ -f ${__dplg_v_cache} ]] || __dplg_c_reload
@@ -49,13 +49,13 @@ __dplg_c_check() {
   while read plug
   do
     __dplg_f_parse "${plug}"
-    [[ ! -z "${__dplg_v_plugins[${__dplg_v_as}]}" ]] || return 1
+    [[ ! -z "${deplugins[${__dplg_v_as}]}" ]] || return 1
   done < ${__dplg_v_state}
 }
 __dplg_c_reload() {
-  [[ ! -z ${__dplg_v_plugins[@]} ]] || return
+  [[ ! -z ${deplugins[@]} ]] || return
   __dplg_f_init
-  for plug in "${__dplg_v_plugins[@]}"
+  for plug in "${deplugins[@]}"
   do
     __dplg_f_parse "${plug}"
     __dplg_f_of
@@ -63,7 +63,7 @@ __dplg_c_reload() {
   done
 }
 __dplg_c_install() {
-  [[ ! -z ${__dplg_v_plugins[@]} ]] || return
+  [[ ! -z ${deplugins[@]} ]] || return
   __dplg_f_init
   __dplg_f_check_plugins < ${__dplg_v_state}
   __dplg_f_plugins | __dplg_f_install > ${__dplg_v_state}
@@ -72,7 +72,7 @@ __dplg_c_install() {
   __dplg_f_load_cache "${__dplg_v_cache}"
 }
 __dplg_c_upgrade() {
-  [[ ! -z ${__dplg_v_plugins[@]} ]] || return
+  [[ ! -z ${deplugins[@]} ]] || return
   __dplg_f_init
   __dplg_f_check_plugins < ${__dplg_v_state}
   __dplg_f_plugins | __dplg_f_upgrade > ${__dplg_v_state}
@@ -110,18 +110,18 @@ __dplg_f_check_plugins() {
   do
     __dplg_f_parse "${plug}"
     [[ ! -z ${__dplg_v_as} ]] || continue
-    if [[ -z ${__dplg_v_plugins[${__dplg_v_as}]} ]]
+    if [[ -z ${deplugins[${__dplg_v_as}]} ]]
     then
       __dplg_f_append 3
       continue
     fi
-    local curr_status=${__dplg_v_plugins[${__dplg_v_as}]##*status:}
+    local curr_status=${deplugins[${__dplg_v_as}]##*status:}
     if [[ 0 -gt ${curr_status} ]]
     then continue
     fi
-    if [[ ${plug} != ${__dplg_v_plugins[${__dplg_v_as}]} ]]
+    if [[ ${plug} != ${deplugins[${__dplg_v_as}]} ]]
     then
-      __dplg_f_parse "${__dplg_v_plugins[${__dplg_v_as}]}"
+      __dplg_f_parse "${deplugins[${__dplg_v_as}]}"
       __dplg_f_append 2
     fi
   done
@@ -143,7 +143,7 @@ __dplg_f_freeze() {
   done
 }
 __dplg_f_plugins() {
-  for plug in "${__dplg_v_plugins[@]}"
+  for plug in "${deplugins[@]}"
   do echo ${plug}
   done
 }
@@ -226,7 +226,7 @@ __dplg_c_clean() {
   local __dplug_v_ans=
   __dplg_f_init
   __dplg_f_check_plugins < ${__dplg_v_state}
-  for plug in "${__dplg_v_plugins[@]}"
+  for plug in "${deplugins[@]}"
   do
     __dplg_f_parse "${plug}"
     if [[ 0 -eq ${__dplg_v_verbose} ]]
@@ -253,7 +253,7 @@ __dplg_c_clean() {
   then
     for __dplg_v_as in "${__dplg_v_trash[@]}"
     do
-      __dplg_f_parse "${__dplg_v_plugins[${__dplg_v_as}]}"
+      __dplg_f_parse "${deplugins[${__dplg_v_as}]}"
       if [[ 0 -eq ${__dplg_v_verbose} ]]
       then __dplg_v_display="${__dplg_v_as}"
       else __dplg_v_display="${__dplg_v_as} (plugin: ${__dplg_v_plugin}, dir: ${__dplg_v_dir})"
@@ -262,7 +262,7 @@ __dplg_c_clean() {
       then
         __dplg_f_message "${__dplg_v_colo[mag]}Clean..  ${__dplg_v_colo[res]} ${__dplg_v_display}"
         rm -rf "${__dplg_v_dir}"
-        unset "__dplg_v_plugins[${__dplg_v_as}]"
+        unset "deplugins[${__dplg_v_as}]"
         __dplg_f_message "${__dplg_v_colo[red]}Cleaned  ${__dplg_v_colo[res]} ${__dplg_v_display}"
       fi
     done
@@ -275,7 +275,7 @@ __dplg_c_status() {
   if [[ 0 -gt ${__dplg_v_verbose} ]]
   then __dplg_f_check_plugins < ${__dplg_v_state}
   fi
-  for plug in "${__dplg_v_plugins[@]}"
+  for plug in "${deplugins[@]}"
   do
     __dplg_f_parse "${plug}"
     if [[ 0 -eq ${__dplg_v_verbose} ]]
@@ -310,9 +310,9 @@ __dplg_c_append() {
   local plug=$(__dplg_f_stringify)
   if [[ ! -d ${__dplg_v_dir} ]]
   then __dplg_f_append 1
-  elif [[ -z ${__dplg_v_plugins[${__dplg_v_as}]} ]]
+  elif [[ -z ${deplugins[${__dplg_v_as}]} ]]
   then __dplg_f_append 0
-  elif [[ "${__dplg_v_plugins[${__dplg_v_as}]}" == "${plug}" ]]
+  elif [[ "${deplugins[${__dplg_v_as}]}" == "${plug}" ]]
   then __dplg_f_append 0
   else __dplg_f_append 2
   fi
@@ -324,10 +324,10 @@ __dplg_f_append() {
   # status 3 ... cached
   # status 4 ... error
   [[ ! -z ${__dplg_v_as} ]] || return
-  __dplg_v_plugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
+  deplugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
 }
 __dplg_f_remove() {
-  unset "__dplg_v_plugins[${__dplg_v_as}]"
+  unset "deplugins[${__dplg_v_as}]"
 }
 __dplg_c_help() {
   echo

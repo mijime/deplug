@@ -48,32 +48,12 @@ __dplg_c_reset() {
   declare -g -A deplugins=()
 }
 
-__dplg_c_include() {
-  [[ -f ${__dplg_v_cache} ]] || __dplg_c_reload
+__dplg_c_load() {
+  if [[ -f ${__dplg_v_cache} ]]
+  then __dplg_f_save_cache > "${__dplg_v_cache}"
+  fi
+
   source "${__dplg_v_cache}"
-}
-
-__dplg_c_check() {
-  __dplg_f_init
-
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-    [[ ! -z "${deplugins[${__dplg_v_as}]}" ]] || return 1
-  done < ${__dplg_v_state}
-}
-
-__dplg_c_reload() {
-  [[ ! -z ${deplugins[@]} ]] || return
-
-  __dplg_f_init
-
-  for plug in "${deplugins[@]}"
-  do
-    __dplg_f_parse "${plug}"
-    __dplg_f_of
-    __dplg_f_use
-  done
 }
 
 __dplg_c_install() {
@@ -81,10 +61,10 @@ __dplg_c_install() {
 
   __dplg_f_init
   __dplg_f_check_plugins < ${__dplg_v_state}
-  __dplg_f_plugins | __dplg_f_install > ${__dplg_v_state}
-  __dplg_f_defrost < ${__dplg_v_state}
+  __dplg_f_plugins | __dplg_f_install > "${__dplg_v_state}"
+  __dplg_f_defrost < "${__dplg_v_state}"
 
-  __dplg_f_plugins | __dplg_f_save_cache > ${__dplg_v_cache}
+  __dplg_f_plugins | __dplg_f_save_cache > "${__dplg_v_cache}"
   __dplg_f_load_cache "${__dplg_v_cache}"
 }
 

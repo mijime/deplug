@@ -5,7 +5,7 @@ caseAll(){
   deplug ${__dplg__options[@]} status
   deplug ${__dplg__options[@]} clean --yes
   deplug ${__dplg__options[@]} install
-  deplug ${__dplg__options[@]} include
+  deplug ${__dplg__options[@]} load
 }
 
 __dplg__options=(--verbose)

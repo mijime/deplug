@@ -523,3 +523,13 @@ __dplg_f_parse() {
   __dplg_v_from=${__dplg_v_args[8]#from:}
   __dplg_v_status=${__dplg_v_args[9]#status:}
 }
+__dplg_f_progress() {
+  local -a progress=("|" "/" "-" "\\" "|")
+  local inc=0
+  while read line; do
+    echo -n -e "\r${progress[$((inc++ % 5 + 1))]}" >&2
+    echo -n -e "\r" >&2
+    echo "$line"
+  done
+  echo -n -e "\r" >&2
+}

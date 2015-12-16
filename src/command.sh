@@ -215,9 +215,9 @@ __dplg_f_install() {
         [[ 0 -eq $? ]] || __dplg_v_errcode=1
       fi
 
-      if [[ 0 -eq ${__dplg_v_verbose} ]]
-      then
-        __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
+      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
       fi
 
       if [[ 0 -eq ${__dplg_v_errcode} ]]
@@ -258,9 +258,9 @@ __dplg_f_upgrade() {
         [[ 0 -eq $? ]] || __dplg_v_errcode=1
       fi
 
-      if [[ 0 -eq ${__dplg_v_verbose} ]]
-      then
-        __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
+      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
+      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
       fi
 
       if [[ 0 -eq ${__dplg_v_errcode} ]]

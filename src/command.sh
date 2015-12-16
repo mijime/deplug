@@ -39,7 +39,7 @@ deplug() {
     return 1
   fi
 
-  __dplg_f_verbose "Call command ${__dplg_v_cmd}"
+  __dplg_f_verbose "[DEBUG] command: ${__dplg_v_cmd}"
   "__dplg_c_${__dplg_v_cmd}"
 }
 

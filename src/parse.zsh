@@ -27,7 +27,9 @@ __dplg__color() {
 }
 
 __dplg__pipestatus() {
-  return "${pipestatus[$(($1 + 1))]}"
+  local -a __v__pipestatus=(${pipestatus[@]})
+  __dplg__verbose "[DEBUG] pipestatus ${__v__pipestatus[@]}"
+  return ${__v__pipestatus[$(($1 + 1))]}
 }
 
 __dplg__progress() {

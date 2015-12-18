@@ -12,6 +12,3 @@ deplug --verbose list || true
 
 deplug --verbose update
 deplug --verbose list || true
-
-deplug --verbose clean --yes
-deplug --verbose list || true

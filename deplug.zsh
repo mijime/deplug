@@ -113,7 +113,7 @@ __dplg__install() {
       ;;
   esac
   __dplg__message "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
-  __dplg__install_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
+  __dplg__install_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}:"
   if ! __dplg__pipestatus 0
   then
     __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
@@ -122,7 +122,7 @@ __dplg__install() {
   fi
   if [[ ! -z ${__v__post} ]]
   then
-    __dplg__post 2>&1 | __dplg__verbose "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
+    __dplg__post 2>&1 | __dplg__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
     if ! __dplg__pipestatus 0
     then
       __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
@@ -225,18 +225,16 @@ __dplg__parse_arguments() {
   fi
 }
 __dplg__post() {
-  [[ -z ${__v__post} ]] && return
+  [[ -z ${__v__post} ]] && return 0
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
   eval ${__v__post}
   __v__errcode=$?
   if [[ ${__v__errcode} -gt 0 ]]
   then
-    echo "err: ${__v__errcode}"
     cd "${__v__pwd}"
     return 1
   fi
-  echo "ok: ${__v__errcode}"
   cd "${__v__pwd}"
 }
 __dplg__of() {
@@ -408,24 +406,24 @@ __dplg__update() {
       ;;
   esac
   __dplg__message "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
-  __dplg__update_plugin 2>&1 | __dplg__progress | __dplg__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
+  __dplg__update_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}:"
   if ! __dplg__pipestatus 0
   then
-    __dplg__message "${__v__colo[3]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
+    __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
     __dplg__stringify 4
     return
   fi
   if [[ ! -z ${__v__post} ]]
   then
-    __dplg__post 2>&1 | __dplg__progress | __dplg__verbose "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
+    __dplg__post 2>&1 | __dplg__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
     if ! __dplg__pipestatus 0
     then
-      __dplg__message "${__v__colo[3]}Failed${__v__colo[9]} ${__v__as}"
+      __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
       __dplg__stringify 4
       return
     fi
   fi
-  __dplg__message "${__v__colo[3]}Updated${__v__colo[9]} ${__v__as}"
+  __dplg__message "${__v__colo[4]}Updated${__v__colo[9]} ${__v__as}"
   __dplg__stringify 0
 }
 __dplg__update_plugin() {
@@ -525,7 +523,8 @@ __dplg__color() {
   __v__colo[9]="\033[m"
 }
 __dplg__pipestatus() {
-  return "${pipestatus[$(($1 + 1))]}"
+  local -a __v__pipestatus=(${pipestatus[@]})
+  return ${__v__pipestatus[$(($1 + 1))]}
 }
 __dplg__progress() {
   local -a progress=("|" "/" "-" "\\" "|")

@@ -7,7 +7,6 @@ __dplg__command__install() {
 
   __dplg__plugins | while read __v__plug
   do
-    echo "${__v__plug}" | sed -e 's/^/[DEBUG] install:prev /g' | __dplg__verbose
     __dplg__parse_line "${__v__plug}"
     __dplg__install &
   done | cat > "${__g__state}".bk
@@ -33,7 +32,7 @@ __dplg__install() {
 
   __dplg__message "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
 
-  __dplg__install_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
+  __dplg__install_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}:"
 
   if ! __dplg__pipestatus 0
   then
@@ -44,7 +43,7 @@ __dplg__install() {
 
   if [[ ! -z ${__v__post} ]]
   then
-    __dplg__post 2>&1 | __dplg__verbose "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}"
+    __dplg__post 2>&1 | __dplg__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
 
     if ! __dplg__pipestatus 0
     then

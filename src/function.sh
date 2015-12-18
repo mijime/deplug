@@ -94,12 +94,10 @@ __dplg__post() {
   __v__errcode=$?
   if [[ ${__v__errcode} -gt 0 ]]
   then
-    echo "err: ${__v__errcode}"
     cd "${__v__pwd}"
     return 1
   fi
 
-  echo "ok: ${__v__errcode}"
   cd "${__v__pwd}"
 }
 
@@ -215,7 +213,7 @@ __dplg__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=1
-    print "[DEBUG]",1,$0 > "/dev/stderr"
+    # print "[DEBUG]",1,$0 > "/dev/stderr"
     next
   }
 
@@ -223,7 +221,7 @@ __dplg__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
-    print "[DEBUG]",4,$0 > "/dev/stderr"
+    # print "[DEBUG]",4,$0 > "/dev/stderr"
     next
   }
 
@@ -231,13 +229,13 @@ __dplg__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=3
-    print "[DEBUG]",3,$0 > "/dev/stderr"
+    # print "[DEBUG]",3,$0 > "/dev/stderr"
     next
   }
 
   (stat[2]==4 || st[$2]==4) && $1=="when:prev" {
     st[$2]=4
-    print "[DEBUG]",4,$0 > "/dev/stderr"
+    # print "[DEBUG]",4,$0 > "/dev/stderr"
     next
   }
 
@@ -245,14 +243,14 @@ __dplg__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
-    print "[DEBUG]",4,$0 > "/dev/stderr"
+    # print "[DEBUG]",4,$0 > "/dev/stderr"
     next
   }
 
   pl[$2]==ctx && $1!=when[2] {
     when[$2]="when:curr"
     st[$2]=0
-    print "[DEBUG]",0,$0 > "/dev/stderr"
+    # print "[DEBUG]",0,$0 > "/dev/stderr"
     next
   }
 
@@ -260,13 +258,13 @@ __dplg__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=2
-    print "[DEBUG]",2,$0 > "/dev/stderr"
+    # print "[DEBUG]",2,$0 > "/dev/stderr"
     next
   }
 
   pl[$2]!=ctx && $1=="when:prev" {
     st[$2]=2
-    print "[DEBUG]",2,$0 > "/dev/stderr"
+    # print "[DEBUG]",2,$0 > "/dev/stderr"
     next
   }
 

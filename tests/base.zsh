@@ -19,4 +19,4 @@ EOF
   ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | xargs cat
 }
 
-include_files | zsh
+include_files | zsh ${TEST_OPTIONS}

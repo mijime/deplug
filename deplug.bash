@@ -1,47 +1,3 @@
-__dplg__command__load() {
-  [[ ! -z ${deplugins[@]} ]] || return
-  if [[ ! -f ${__g__cache} ]]
-  then
-    __dplg__init
-    __dplg__plugins_prev | __dplg__save_cache > "${__g__cache}"
-  fi
-  source "${__g__cache}"
-}
-__dplg__command__list() {
-  __dplg__init
-  local __v__display=
-  local __v__iserr=0
-  __dplg__plugins | while read __v__plug
-  do
-    __dplg__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      0)
-        __dplg__message "${__v__colo[4]}Installed${__v__colo[9]} ${__v__display}"
-        ;;
-      1)
-        __dplg__message "${__v__colo[5]}NoInstall${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      2)
-        __dplg__message "${__v__colo[6]}Changed  ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      3)
-        __dplg__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      4)
-        __dplg__message "${__v__colo[1]}Failed   ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-    esac
-  done
-  return ${__v__iserr}
-}
 declare -a deplugins=()
 deplug() {
   local -a __v__colo=()
@@ -88,6 +44,54 @@ __dplg__command__help() {
 }
 __dplg__command__reset() {
   deplugins=()
+}
+__dplg__command__clean() {
+  local __v__has_trash=0
+  local __v__ans=
+  __dplg__init
+  __dplg__plugins | while read __v__plug
+  do
+    __dplg__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      3|4)
+        __dplg__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
+        __v__has_trash=1
+        ;;
+    esac
+  done
+  [[ 0 -eq ${__v__has_trash} ]] && return
+  if [[ 0 -eq ${__v__yes} ]]
+  then
+    echo -n -e "${__v__colo[7]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
+    read __v__ans
+    echo
+  else
+    __v__ans=y
+  fi
+  [[ "${__v__ans}" == "y" ]] || return
+  __dplg__plugins | while read __v__plug
+  do
+    __dplg__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      3|4)
+        __dplg__message "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__display}"
+        rm -rf "${__v__dir}" 2>&1 | __dplg__logger "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__as}"
+        __dplg__message "${__v__colo[1]}Cleaned  ${__v__colo[9]} ${__v__display}"
+        ;;
+      *)
+        __dplg__stringify
+        ;;
+    esac
+  done | cat > "${__g__state}".bk
+  mv "${__g__state}"{.bk,}
 }
 __dplg__command__install() {
   [[ ! -z ${deplugins[@]} ]] || return
@@ -153,6 +157,118 @@ __dplg__install_plugin() {
     fi
     cd "${__v__pwd}"
   fi
+}
+__dplg__command__list() {
+  __dplg__init
+  local __v__display=
+  local __v__iserr=0
+  __dplg__plugins | while read __v__plug
+  do
+    __dplg__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      0)
+        __dplg__message "${__v__colo[4]}Installed${__v__colo[9]} ${__v__display}"
+        ;;
+      1)
+        __dplg__message "${__v__colo[5]}NoInstall${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      2)
+        __dplg__message "${__v__colo[6]}Changed  ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      3)
+        __dplg__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      4)
+        __dplg__message "${__v__colo[1]}Failed   ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+    esac
+  done
+  return ${__v__iserr}
+}
+__dplg__command__load() {
+  [[ ! -z ${deplugins[@]} ]] || return
+  if [[ ! -f ${__g__cache} ]]
+  then
+    __dplg__init
+    __dplg__plugins_prev | __dplg__save_cache > "${__g__cache}"
+  fi
+  source "${__g__cache}"
+}
+__dplg__command__update() {
+  [[ ! -z ${deplugins[@]} ]] || return
+  __dplg__init
+  local __v__plug=
+  __dplg__plugins | while read __v__plug
+  do
+    __dplg__parse_line "${__v__plug}"
+    __dplg__update &
+  done | cat > "${__g__state}".bk
+  mv "${__g__state}"{.bk,}
+  __dplg__plugins | __dplg__save_cache > "${__g__cache}"
+  __dplg__load_cache "${__g__cache}"
+}
+__dplg__update() {
+  local __v__plug=
+  local __v__errcode=0
+  local __v__msgfmt=""
+  case ${__v__status} in
+    3)
+      __dplg__stringify "${__v__status}"
+      return
+      ;;
+  esac
+  __dplg__message "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
+  __dplg__update_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}:"
+  if ! __dplg__pipestatus 0
+  then
+    __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
+    __dplg__stringify 4
+    return
+  fi
+  if [[ ! -z ${__v__post} ]]
+  then
+    __dplg__post 2>&1 | __dplg__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
+    if ! __dplg__pipestatus 0
+    then
+      __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
+      __dplg__stringify 4
+      return
+    fi
+  fi
+  __dplg__message "${__v__colo[4]}Updated${__v__colo[9]} ${__v__as}"
+  __dplg__stringify 0
+}
+__dplg__update_plugin() {
+  __v__pwd=$(pwd)
+  cd "${__v__dir}" || return 1
+  git pull
+  __v__errcode=$?
+  if [[ ${__v__errcode} -gt 0 ]]
+  then
+    cd "${__v__pwd}"
+    return 1
+  fi
+  if [[ ! -z "${__v__tag}" ]]
+  then
+    __v__pwd=$(pwd)
+    cd "${__v__dir}" || return 1
+    git checkout ${__v__tag}
+    __v__errcode=$?
+    if [[ ${__v__errcode} -gt 0 ]]
+    then
+      cd "${__v__pwd}"
+      return 1
+    fi
+  fi
+  cd "${__v__pwd}"
 }
 __dplg__init() {
   mkdir -p ${__g__home} ${__g__repos} ${__g__bin}
@@ -381,122 +497,6 @@ __dplg__plugins_curr() {
 }
 __dplg__append_plugin() {
   deplugins=("${deplugins[@]}" "$@")
-}
-__dplg__command__update() {
-  [[ ! -z ${deplugins[@]} ]] || return
-  __dplg__init
-  local __v__plug=
-  __dplg__plugins | while read __v__plug
-  do
-    __dplg__parse_line "${__v__plug}"
-    __dplg__update &
-  done | cat > "${__g__state}".bk
-  mv "${__g__state}"{.bk,}
-  __dplg__plugins | __dplg__save_cache > "${__g__cache}"
-  __dplg__load_cache "${__g__cache}"
-}
-__dplg__update() {
-  local __v__plug=
-  local __v__errcode=0
-  local __v__msgfmt=""
-  case ${__v__status} in
-    3)
-      __dplg__stringify "${__v__status}"
-      return
-      ;;
-  esac
-  __dplg__message "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
-  __dplg__update_plugin 2>&1 | __dplg__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}:"
-  if ! __dplg__pipestatus 0
-  then
-    __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
-    __dplg__stringify 4
-    return
-  fi
-  if [[ ! -z ${__v__post} ]]
-  then
-    __dplg__post 2>&1 | __dplg__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
-    if ! __dplg__pipestatus 0
-    then
-      __dplg__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
-      __dplg__stringify 4
-      return
-    fi
-  fi
-  __dplg__message "${__v__colo[4]}Updated${__v__colo[9]} ${__v__as}"
-  __dplg__stringify 0
-}
-__dplg__update_plugin() {
-  __v__pwd=$(pwd)
-  cd "${__v__dir}" || return 1
-  git pull
-  __v__errcode=$?
-  if [[ ${__v__errcode} -gt 0 ]]
-  then
-    cd "${__v__pwd}"
-    return 1
-  fi
-  if [[ ! -z "${__v__tag}" ]]
-  then
-    __v__pwd=$(pwd)
-    cd "${__v__dir}" || return 1
-    git checkout ${__v__tag}
-    __v__errcode=$?
-    if [[ ${__v__errcode} -gt 0 ]]
-    then
-      cd "${__v__pwd}"
-      return 1
-    fi
-  fi
-  cd "${__v__pwd}"
-}
-__dplg__command__clean() {
-  local __v__has_trash=0
-  local __v__ans=
-  __dplg__init
-  __dplg__plugins | while read __v__plug
-  do
-    __dplg__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      3|4)
-        __dplg__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
-        __v__has_trash=1
-        ;;
-    esac
-  done
-  [[ 0 -eq ${__v__has_trash} ]] && return
-  if [[ 0 -eq ${__v__yes} ]]
-  then
-    echo -n -e "${__v__colo[7]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
-    read __v__ans
-    echo
-  else
-    __v__ans=y
-  fi
-  [[ "${__v__ans}" == "y" ]] || return
-  __dplg__plugins | while read __v__plug
-  do
-    __dplg__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      3|4)
-        __dplg__message "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__display}"
-        rm -rf "${__v__dir}" 2>&1 | __dplg__logger "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__as}"
-        __dplg__message "${__v__colo[1]}Cleaned  ${__v__colo[9]} ${__v__display}"
-        ;;
-      *)
-        __dplg__stringify
-        ;;
-    esac
-  done | cat > "${__g__state}".bk
-  mv "${__g__state}"{.bk,}
 }
 __dplg__parse_line() {
   local -a __v__args=()

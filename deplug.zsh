@@ -225,7 +225,7 @@ __dplg__parse_arguments() {
   fi
 }
 __dplg__post() {
-  [[ -z ${__v__post} ]] && return 0
+  [[ -z ${__v__post} ]] && return
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
   eval ${__v__post}

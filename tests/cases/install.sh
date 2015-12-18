@@ -1,14 +1,14 @@
-deplug --verbose reset
-deplug --verbose list || true
+deplug reset
+deplug list || true
 
-deplug --verbose mijime/dat2bar  tag:master post:'notfoundfunc'
-deplug --verbose list || true
+deplug mijime/dat2bar  tag:master post:'notfoundfunc'
+deplug list || true
 
-deplug --verbose mijime/dotfiles post:'true' of:'.bashrc.d/*.sh' --use='.bin/*'
-deplug --verbose list || true
+deplug mijime/dotfiles post:'true' of:'.bashrc.d/*.sh' --use='.bin/*'
+deplug list || true
 
-deplug --verbose install
-deplug --verbose list || true
+deplug install
+deplug list || true
 
-deplug --verbose update
-deplug --verbose list || true
+deplug update
+deplug list || true

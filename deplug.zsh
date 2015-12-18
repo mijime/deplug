@@ -416,12 +416,16 @@ __dplg__verbose() {
   fi
 }
 __dplg__logger() {
-  [[ 0 -eq ${__v__verbose} ]] && return
-  while read msg
-  do
-    [[ -z ${msg} ]] && continue
-    echo -e "$@ ${msg}" >&2
-  done
+  if [[ 0 -eq ${__v__verbose} ]]
+  then
+    cat > /dev/null
+  else
+    while read msg
+    do
+      [[ -z ${msg} ]] && continue
+      echo -e "$@ ${msg}" >&2
+    done
+  fi
 }
 __dplg__stringify() {
   [[ ! -z ${__v__as} ]] || return

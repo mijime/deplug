@@ -1,7 +1,7 @@
 #!/usr/bin/zsh -e
 
 TEST_TARGET=${TEST_TARGET:-.*}
-cdir=${0%/*}
+cdir=$(cd $(dirname $0);pwd)
 
 include_files() {
   cat <<EOF
@@ -14,9 +14,7 @@ include_files() {
   export DEPLUG_STATE=/tmp/tests/zsh/state
   export DEPLUG_REPO=/tmp/tests/zsh/repos
 EOF
-  cat ${cdir}/../src/command.sh
-  cat ${cdir}/../src/function.sh
-  cat ${cdir}/../src/*.zsh
+  cat ${cdir}/../src/*.sh ${cdir}/../src/*.zsh
   cat ${cdir}/utils/*.sh
   ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | xargs cat
 }

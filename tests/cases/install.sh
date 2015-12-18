@@ -10,5 +10,8 @@ deplug --verbose list || true
 deplug --verbose install
 deplug --verbose list || true
 
-deplug --verbose upgrade
+deplug --verbose update
+deplug --verbose list || true
+
+deplug --verbose clean --yes
 deplug --verbose list || true

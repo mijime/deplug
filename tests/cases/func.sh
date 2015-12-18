@@ -18,19 +18,19 @@ testInitial() {
 }
 
 testCase() {
-  evalute 'glob'    __dplg_f_glob "${DEPLUG_HOME}/dir"
-  evalute 'parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
-  evalute 'of'      __dplg_f_of
-  evalute 'use'     __dplg_f_use
-  evalute 'post'    __dplg_f_post
+  evalute 'glob'    __dplg__glob "${DEPLUG_HOME}/dir"
+  evalute 'parse'   __dplg__parse_arguments "test/test" dir: "${DEPLUG_HOME}/dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+  evalute 'of'      __dplg__of
+  evalute 'use'     __dplg__use
+  evalute 'post'    __dplg__post
 }
 
 testCaseSpace() {
-  evalute 'spacedir glob'    __dplg_f_glob "${DEPLUG_HOME}/space\ dir"
-  evalute 'spacedir parse'   __dplg_f_parseArgs "test/test" dir: "${DEPLUG_HOME}/space dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
-  evalute 'spacedir of'      __dplg_f_of
-  evalute 'spacedir use'     __dplg_f_use
-  # evalute 'spacedir post'    __dplg_f_post # TODO
+  evalute 'spacedir glob'    __dplg__glob "${DEPLUG_HOME}/space\ dir"
+  evalute 'spacedir parse'   __dplg__parse_arguments "test/test" dir: "${DEPLUG_HOME}/space dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+  evalute 'spacedir of'      __dplg__of
+  evalute 'spacedir use'     __dplg__use
+  # evalute 'spacedir post'    __dplg__post # TODO
 }
 
 testInitial

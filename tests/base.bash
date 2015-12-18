@@ -1,7 +1,7 @@
 #!/usr/bin/bash -e
 
 TEST_TARGET=${TEST_TARGET:-.*}
-cdir=${0%/*}
+cdir=$(cd $(dirname $0);pwd)
 
 include_files() {
   cat <<EOF
@@ -14,11 +14,9 @@ include_files() {
   export DEPLUG_STATE=/tmp/tests/bash/state
   export DEPLUG_REPO=/tmp/tests/bash/repos
 EOF
-  cat ${cdir}/../src/command.sh
-  cat ${cdir}/../src/function.sh
-  cat ${cdir}/../src/*.bash
+  cat ${cdir}/../src/*.sh ${cdir}/../src/*.bash
   cat ${cdir}/utils/*.sh
   ls -1p ${cdir}/cases/*.sh | grep "${TEST_TARGET}" | xargs cat
 }
 
-include_files | bash
+include_files | bash ${TEST_OPTIONS}

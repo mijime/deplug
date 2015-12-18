@@ -22,3 +22,6 @@ tests/*.zsh: deplug.zsh
 
 tests/*.bash: deplug.bash
 	bash $(TEST_OPTIONS) $@
+
+test_docker:
+	docker run --rm --volume /$$(pwd)://wk --workdir //wk --env=TEST_TARGET=$(TEST_TARGET) ko1nksm/bash:3.0 bash $(TEST_OPTIONS) tests/base.bash

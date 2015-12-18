@@ -1,405 +1,288 @@
-__dplg_f_init() {
-  mkdir -p ${__dplg_v_home} ${__dplg_v_repo} ${__dplg_v_bin}
-  touch ${__dplg_v_state} ${__dplg_v_cache}
+__dplg__init() {
+  mkdir -p ${__g__home} ${__g__repos} ${__g__bin}
+  touch ${__g__state} ${__g__cache}
 }
 
-__dplg_f_parseArgs() {
+__dplg__parse_arguments() {
   while [[ $# -gt 0 ]]
   do
     case $1 in
       --yes|-y)
-        __dplg_v_yes=1
+        __v__yes=1
         shift || break
         ;;
 
       --color)
-        __dplg_v_usecolo=1
+        __v__usecolo=1
         shift || break
         ;;
 
       --no-color)
-        __dplg_v_usecolo=0
+        __v__usecolo=0
         shift || break
         ;;
 
       --verbose|-v)
-        __dplg_v_verbose=1
+        __v__verbose=1
         shift || break
         ;;
 
       *:)
-        eval "__dplg_v_${1%%:*}='$2'" || return 1
+        eval "__v__${1%%:*}='$2'" || return 1
         shift 2 || break
         ;;
 
       *:*)
-        eval "__dplg_v_${1%%:*}='${1#*:}'" || return 1
+        eval "__v__${1%%:*}='${1#*:}'" || return 1
         shift || break
         ;;
 
       --*=*)
-        __dplg_v_key=${1#--}
-        __dplg_v_key=${__dplg_v_key%%=*}
-        eval "__dplg_v_${__dplg_v_key}='${1#*=}'" || return 1
+        __v__key=${1#--}
+        __v__key=${__v__key%%=*}
+        eval "__v__${__v__key}='${1#*=}'" || return 1
         shift || break
         ;;
 
       --*)
-        eval "__dplg_v_${1#--}='$2'" || return 1
+        eval "__v__${1#--}='$2'" || return 1
         shift 2 || break
         ;;
 
       */*)
-        if [[ -z ${__dplg_v_cmd} ]]
+        if [[ -z ${__v__cmd} ]]
         then
-          __dplg_v_cmd=append
-          __dplg_v_usecolo=0
+          __v__cmd=append
+          __v__usecolo=0
         fi
-        __dplg_v_plugin=$1
+        __v__plugin=$1
         shift || break
         ;;
 
       *)
-        __dplg_v_cmd=$1
+        __v__cmd=$1
         shift || break
         ;;
     esac
   done
 
-  if [[ -z ${__dplg_v_as} ]]
-  then __dplg_v_as=${__dplg_v_plugin##*/}
+  if [[ -z ${__v__as} ]]
+  then __v__as=${__v__plugin##*/}
   fi
 
-  if [[ -z "${__dplg_v_dir}"  ]]
-  then __dplg_v_dir="${__dplg_v_repo}/${__dplg_v_as}"
+  if [[ -z "${__v__dir}"  ]]
+  then __v__dir="${__g__repos}/${__v__as}"
   fi
 
-  if [[ 1 -eq ${__dplg_v_usecolo} ]]
-  then __dplg_f_color
+  if [[ -z "${__v__from}"  ]]
+  then __v__from="https://github.com/${__v__plugin}"
+  fi
+
+  if [[ 1 -eq ${__v__usecolo} ]]
+  then __dplg__color
   fi
 }
 
-__dplg_f_post() {
-  [[ -z ${__dplg_v_post} ]] && return
+__dplg__post() {
+  [[ -z ${__v__post} ]] && return
 
-  __dplg_v_pwd=$(pwd)
-  cd "${__dplg_v_dir}" || return 1
-  eval ${__dplg_v_post}
-  if [[ 0 -eq $? ]]
+  __v__pwd=$(pwd)
+  cd "${__v__dir}" || return 1
+
+  eval ${__v__post}
+
+  __v__errcode=$?
+  if [[ ${__v__errcode} -gt 0 ]]
   then
-    cd "${__dplg_v_pwd}"
-  else
-    cd "${__dplg_v_pwd}"
+    echo "err: ${__v__errcode}"
+    cd "${__v__pwd}"
     return 1
   fi
+
+  echo "ok: ${__v__errcode}"
+  cd "${__v__pwd}"
 }
 
-__dplg_f_download() {
-  case ${__dplg_v_from} in
-    *)
-      if [[ ! -d ${__dplg_v_dir} ]]
-      then
-        git clone "${__dplg_v_from}/${__dplg_v_plugin}" "${__dplg_v_dir}"
-        [[ 0 -eq $? ]] || return 1
-      fi
+__dplg__of() {
+  [[ -z ${__v__of} ]] && return
 
-      if [[ ! -z "${__dplg_v_tag}" ]]
-      then
-        __dplg_v_pwd=$(pwd)
-        cd "${__dplg_v_dir}" || return 1
-        git checkout ${__dplg_v_tag}
-        if [[ 0 -eq $? ]]
-        then
-          cd "${__dplg_v_pwd}"
-        else
-          cd "${__dplg_v_pwd}"
-          return 1
-        fi
-      fi
-      ;;
-  esac
+  __v__pwd=$(pwd)
+  cd "${__v__dir}" || return 1
+  __dplg__glob "${__v__of}" | while read srcfile
+do
+  [[ ! -z ${srcfile} ]] || continue
+  echo "source '${__v__dir}/${srcfile}'"
+done
+cd "${__v__pwd}"
 }
 
-__dplg_f_update() {
-  __dplg_v_pwd=$(pwd)
-  cd "${__dplg_v_dir}" || return 1
-  case ${__dplg_v_from} in
-    *)
-      git pull
-      if [[ 0 -gt $? ]]
-      then
-        cd "${__dplg_v_pwd}"
-        return 1
-      fi
+__dplg__use() {
+  [[ -z ${__v__use} ]] && return
 
-      if [[ ! -z "${__dplg_v_tag}" ]]
-      then
-        git checkout ${__dplg_v_tag}
-        if [[ 0 -gt $? ]]
-        then
-          cd "${__dplg_v_pwd}"
-          return 1
-        fi
-      fi
-      ;;
-  esac
-  cd "${__dplg_v_pwd}"
+  __v__pwd=$(pwd)
+  cd "${__v__dir}" || return 1
+  __dplg__glob "${__v__use}" | while read usefile
+do
+  [[ ! -z ${usefile} ]] || continue
+  ln -sf "${__v__dir}/${usefile}" "${__g__bin}/" 2>&1 | __dplg__message
+done
+cd "${__v__pwd}"
 }
 
-__dplg_f_of() {
-  [[ -z ${__dplg_v_of} ]] && return
-
-  __dplg_v_pwd=$(pwd)
-  cd "${__dplg_v_dir}" || return 1
-  __dplg_f_glob "${__dplg_v_of}" | while read srcfile
-  do
-    [[ ! -z ${srcfile} ]] || continue
-    echo "source '${__dplg_v_dir}/${srcfile}'"
-  done
-  cd "${__dplg_v_pwd}"
+__dplg__glob() {
+  eval \\ls -1pd "$@" 2>/dev/null
 }
 
-__dplg_f_use() {
-  [[ -z ${__dplg_v_use} ]] && return
-
-  __dplg_v_pwd=$(pwd)
-  cd "${__dplg_v_dir}" || return 1
-  __dplg_f_glob "${__dplg_v_use}" | while read usefile
-  do
-    [[ ! -z ${usefile} ]] || continue
-    ln -sf "${__dplg_v_dir}/${usefile}" "${__dplg_v_bin}/" 2>&1 | __dplg_f_message
-  done
-  cd "${__dplg_v_pwd}"
-}
-
-__dplg_f_verbose() {
-  [[ 0 -eq ${__dplg_v_verbose} ]] && return
-
-  if [[ -z $@ ]]
-  then
-    while read msg
-    do echo -e ${msg} >&2
-    done
-  else
-    echo -e "$@" >&2
-  fi
-}
-
-
-__dplg_f_logger() {
-  sed -e "s#^#$@ #g" >&2
-}
-
-__dplg_f_glob() {
-  eval \\ls -1pd "$@"
-}
-
-__dplg_f_color() {
-  __dplg_v_colo[bla]="\033[30m"
-  __dplg_v_colo[red]="\033[31m"
-  __dplg_v_colo[gre]="\033[32m"
-  __dplg_v_colo[yel]="\033[33m"
-  __dplg_v_colo[blu]="\033[34m"
-  __dplg_v_colo[mag]="\033[35m"
-  __dplg_v_colo[cya]="\033[36m"
-  __dplg_v_colo[whi]="\033[37m"
-  __dplg_v_colo[res]="\033[m"
-}
-
-__dplg_f_load_cache() {
+__dplg__load_cache() {
   source $1
 }
 
-__dplg_f_save_cache() {
-  echo "export PATH=\"\${PATH}:${__dplg_v_bin}\""
+__dplg__save_cache() {
+  echo "echo \"\${PATH}\" | grep -c \"${__g__bin}\" >/dev/null || export PATH=\"\${PATH}:${__g__bin}\""
 
-  while read plug
+  local __v__plug=
+
+  while read __v__plug
   do
-    __dplg_f_parse "${plug}"
-    [[ 0 -eq ${__dplg_v_status} ]] || continue
+    __dplg__parse_line "${__v__plug}"
+    [[ 0 -eq ${__v__status} ]] || continue
 
     {
-      __dplg_f_of
-      __dplg_f_use
+      __dplg__of
+      __dplg__use
     } &
   done | cat
 }
 
-__dplg_f_message() {
+__dplg__message() {
   if [[ -z $@ ]]
   then
     while read msg
-    do echo -e ${msg} >&2
+    do echo -e "${msg}" >&2
     done
   else
     echo -e "$@" >&2
   fi
 }
 
-__dplg_f_check_plugins() {
-  while read plug
+__dplg__verbose() {
+  [[ 0 -eq ${__v__verbose} ]] && return
+
+  if [[ -z $@ ]]
+  then
+    while read msg
+    do echo -e "${msg}" >&2
+    done
+  else
+    echo -e "$@" >&2
+  fi
+}
+
+__dplg__logger() {
+  [[ 0 -eq ${__v__verbose} ]] && return
+
+  while read msg
   do
-    __dplg_f_parse "${plug}"
-    __dplg_f_stringify | sed -e 's/^/[DEBUG] check previous /g' | __dplg_f_verbose
-
-    [[ ! -z ${__dplg_v_as} ]] || continue
-
-    if [[ -z ${deplugins[${__dplg_v_as}]} ]]
-    then
-      __dplg_f_append 3
-      continue
-    fi
-
-    local curr_status=${deplugins[${__dplg_v_as}]##*status:}
-
-    if [[ 0 -gt ${curr_status} ]]
-    then continue
-    fi
-
-    if [[ ${plug} != ${deplugins[${__dplg_v_as}]} ]]
-    then
-      __dplg_f_parse "${deplugins[${__dplg_v_as}]}"
-      __dplg_f_append 2
-    fi
+    [[ -z ${msg} ]] && continue
+    echo -e "$@ ${msg}" >&2
   done
 }
 
-__dplg_f_defrost() {
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-    __dplg_f_stringify | sed -e 's/^/[DEBUG] defrost /g' | __dplg_f_verbose
+__dplg__stringify() {
+  [[ ! -z ${__v__as} ]] || return
 
-    [[ ! -z ${__dplg_v_as} ]] || continue
+  echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#tag:${__v__tag}#of:${__v__of}#use:${__v__use}#post:${__v__post}#from:${__v__from}#status:${1:-${__v__status}}"
+}
 
-    __dplg_f_append
+# status 0 ... already installed
+# status 1 ... not install
+# status 2 ... changed
+# status 3 ... cached
+# status 4 ... error
+
+__dplg__plugins() {
+  {
+    __dplg__plugins_curr | sed -e 's/^/when:curr#/g'
+    __dplg__plugins_prev | sed -e 's/^/when:prev#/g'
+  } \
+    | awk -v FS="#" -v OFS="#" '
+  {
+    ctx=$3"#"$4"#"$5"#"$6"#"$7"#"$8"#"$9
+    split($10,stat,":")
+  }
+
+  !st[$2] && $1=="when:curr" {
+    pl[$2]=ctx
+    when[$2]=$1
+    st[$2]=1
+    print "[DEBUG]",1,$0 > "/dev/stderr"
+    next
+  }
+
+  !st[$2] && $1=="when:prev" && stat[$2]==4 {
+    pl[$2]=ctx
+    when[$2]=$1
+    st[$2]=4
+    print "[DEBUG]",4,$0 > "/dev/stderr"
+    next
+  }
+
+  !st[$2] && $1=="when:prev" && stat[$2]!=4 {
+    pl[$2]=ctx
+    when[$2]=$1
+    st[$2]=3
+    print "[DEBUG]",3,$0 > "/dev/stderr"
+    next
+  }
+
+  (stat[2]==4 || st[$2]==4) && $1=="when:prev" {
+    st[$2]=4
+    print "[DEBUG]",4,$0 > "/dev/stderr"
+    next
+  }
+
+  (stat[2]==4 || st[$2]==4) && $1=="when:curr" {
+    pl[$2]=ctx
+    when[$2]=$1
+    st[$2]=4
+    print "[DEBUG]",4,$0 > "/dev/stderr"
+    next
+  }
+
+  pl[$2]==ctx && $1!=when[2] {
+    when[$2]="when:curr"
+    st[$2]=0
+    print "[DEBUG]",0,$0 > "/dev/stderr"
+    next
+  }
+
+  pl[$2]!=ctx && $1=="when:curr" {
+    pl[$2]=ctx
+    when[$2]=$1
+    st[$2]=2
+    print "[DEBUG]",2,$0 > "/dev/stderr"
+    next
+  }
+
+  pl[$2]!=ctx && $1=="when:prev" {
+    st[$2]=2
+    print "[DEBUG]",2,$0 > "/dev/stderr"
+    next
+  }
+
+  END { for(p in pl) { print p,pl[p],"status:"st[p] } }'
+}
+
+__dplg__plugins_prev() {
+  cat "${__g__state}"
+}
+
+__dplg__plugins_curr() {
+  for __v__plug in "${deplugins[@]}"
+  do echo "${__v__plug}"
   done
 }
 
-__dplg_f_freeze() {
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-    __dplg_f_stringify | sed -e 's/^/[DEBUG] freeze /g' | __dplg_f_verbose
-
-    [[ ! -z ${__dplg_v_as} ]] || continue
-
-    __dplg_f_stringify
-  done
-}
-
-__dplg_f_plugins() {
-  for plug in "${deplugins[@]}"
-  do echo ${plug}
-  done
-}
-
-__dplg_f_install() {
-  local __dplg_v_errmsg= __dplg_v_errcode=0
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-
-    __dplg_f_stringify | sed -e 's/^/[DEBUG] install /g' | __dplg_f_verbose
-
-    case ${__dplg_v_status} in
-      0|3)
-        __dplg_f_stringify ${__dplg_v_status}
-        continue
-        ;;
-    esac
-
-    {
-      __dplg_f_message "${__dplg_v_colo[blu]}Install..${__dplg_v_colo[res]} ${__dplg_v_as}"
-
-      __dplg_v_errmsg=$(__dplg_f_download 2>&1)
-      [[ 0 -eq $? ]] || __dplg_v_errcode=1
-
-      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
-      then
-        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
-        [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      fi
-
-      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
-      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
-      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
-      fi
-
-      if [[ 0 -eq ${__dplg_v_errcode} ]]
-      then
-        __dplg_f_message "${__dplg_v_colo[cya]}Installed${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
-        __dplg_f_stringify 0
-      else
-        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
-        __dplg_f_stringify 4
-      fi
-
-    } &
-  done | cat
-}
-
-__dplg_f_upgrade() {
-  local __dplg_v_errmsg= __dplg_v_errcode=0
-  while read plug
-  do
-    __dplg_f_parse "${plug}"
-
-    case ${__dplg_v_status} in
-      3)
-        __dplg_f_stringify ${__dplg_v_status}
-        continue
-        ;;
-    esac
-
-    {
-      __dplg_f_message "${__dplg_v_colo[blu]}Update.. ${__dplg_v_colo[res]} ${__dplg_v_as}"
-
-      __dplg_v_errmsg=$(__dplg_f_update 2>&1)
-      [[ 0 -eq $? ]] || __dplg_v_errcode=1
-
-      if [[ ! -z ${__dplg_v_post} ]] && [[ 0 -eq ${__dplg_v_errcode} ]]
-      then
-        __dplg_v_errmsg=$(__dplg_f_post 2>&1)
-        [[ 0 -eq $? ]] || __dplg_v_errcode=1
-      fi
-
-      if [[ 0 -eq ${__dplg_v_verbose} ]] || [[ -z ${__dplg_v_errmsg} ]]
-      then __dplg_v_errmsg=$(echo ${__dplg_v_errmsg} | tail -n 1)
-      else __dplg_v_errmsg=$(echo;echo ${__dplg_v_errmsg} | sed -e "s#^#  ${__dplg_v_as}: #g")
-      fi
-
-      if [[ 0 -eq ${__dplg_v_errcode} ]]
-      then
-        __dplg_f_message "${__dplg_v_colo[cya]}Updated  ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[cya]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
-        __dplg_f_stringify 0
-      else
-        __dplg_f_message "${__dplg_v_colo[red]}Failed   ${__dplg_v_colo[res]} ${__dplg_v_as} ${__dplg_v_colo[red]}${__dplg_v_errmsg}${__dplg_v_colo[res]}"
-        __dplg_f_stringify 4
-      fi
-
-    } &
-  done | cat
-}
-
-__dplg_f_stringify() {
-  [[ ! -z ${__dplg_v_as} ]] || return
-
-  echo "as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
-}
-
-__dplg_f_append() {
-  # status 0 ... already installed
-  # status 1 ... not install
-  # status 2 ... changed
-  # status 3 ... cached
-  # status 4 ... error
-
-  [[ ! -z ${__dplg_v_as} ]] || return
-
-  deplugins[${__dplg_v_as}]="as:${__dplg_v_as}#plugin:${__dplg_v_plugin}#dir:${__dplg_v_dir}#tag:${__dplg_v_tag}#of:${__dplg_v_of}#use:${__dplg_v_use}#post:${__dplg_v_post}#from:${__dplg_v_from}#status:${1:-${__dplg_v_status}}"
-}
-
-__dplg_f_remove() {
-  unset "deplugins[${__dplg_v_as}]"
+__dplg__append_plugin() {
+  deplugins=("${deplugins[@]}" "$@")
 }

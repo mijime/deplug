@@ -1,14 +1,14 @@
-deplug reset
-deplug list || true
+sham reset
+sham list || true
 
-deplug mijime/dat2bar  tag:master post:'notfoundfunc'
-deplug list || true
+sham mijime/dat2bar  tag:master post:'notfoundfunc'
+sham list || true
 
-deplug mijime/dotfiles post:'true' of:'.bashrc.d/*.sh' --use='.bin/*'
-deplug list || true
+sham mijime/dotfiles post:'true' of:'.bashrc.d/*.sh' --use='.bin/*'
+sham list || true
 
-deplug install
-deplug list || true
+sham install
+sham list || true
 
-deplug update
-deplug list || true
+sham update
+sham list || true

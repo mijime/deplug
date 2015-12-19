@@ -8,11 +8,11 @@ include_files() {
   TEST_CASE=bash
   SHELL=/usr/bin/bash
 
-  export DEPLUG_HOME=/tmp/tests/bash
-  export DEPLUG_BIN=/tmp/tests/bash/bin
-  export DEPLUG_CACHE=/tmp/tests/bash/cache
-  export DEPLUG_STATE=/tmp/tests/bash/state
-  export DEPLUG_REPO=/tmp/tests/bash/repos
+  export SHAM_HOME=/tmp/tests/bash
+  export SHAM_BIN=/tmp/tests/bash/bin
+  export SHAM_CACHE=/tmp/tests/bash/cache
+  export SHAM_STATE=/tmp/tests/bash/state
+  export SHAM_REPO=/tmp/tests/bash/repos
 EOF
   cat ${cdir}/../src/*.sh ${cdir}/../src/*.bash
   cat ${cdir}/utils/*.sh

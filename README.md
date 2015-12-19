@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="logo.png" alt="deplug" />
+  <img src="logo.png" alt="sham" />
 </p>
 
-`deplug` commands
+`sham` commands
 -----------------
 
 | command   | description                                     | options             |

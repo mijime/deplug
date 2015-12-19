@@ -1,9 +1,9 @@
-__dplg__init() {
+__sham__init() {
   mkdir -p ${__g__home} ${__g__repos} ${__g__bin}
   touch ${__g__state} ${__g__cache}
 }
 
-__dplg__parse_arguments() {
+__sham__parse_arguments() {
   while [[ $# -gt 0 ]]
   do
     case $1 in
@@ -79,11 +79,11 @@ __dplg__parse_arguments() {
   fi
 
   if [[ 1 -eq ${__v__usecolo} ]]
-  then __dplg__color
+  then __sham__color
   fi
 }
 
-__dplg__post() {
+__sham__post() {
   [[ -z ${__v__post} ]] && return
 
   __v__pwd=$(pwd)
@@ -101,12 +101,12 @@ __dplg__post() {
   cd "${__v__pwd}"
 }
 
-__dplg__of() {
+__sham__of() {
   [[ -z ${__v__of} ]] && return
 
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
-  __dplg__glob "${__v__of}" | while read srcfile
+  __sham__glob "${__v__of}" | while read srcfile
 do
   [[ ! -z ${srcfile} ]] || continue
   echo "source '${__v__dir}/${srcfile}'"
@@ -114,45 +114,45 @@ done
 cd "${__v__pwd}"
 }
 
-__dplg__use() {
+__sham__use() {
   [[ -z ${__v__use} ]] && return
 
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
-  __dplg__glob "${__v__use}" | while read usefile
+  __sham__glob "${__v__use}" | while read usefile
 do
   [[ ! -z ${usefile} ]] || continue
-  ln -sf "${__v__dir}/${usefile}" "${__g__bin}/" 2>&1 | __dplg__message
+  ln -sf "${__v__dir}/${usefile}" "${__g__bin}/" 2>&1 | __sham__message
 done
 cd "${__v__pwd}"
 }
 
-__dplg__glob() {
+__sham__glob() {
   eval \\ls -1pd "$@" 2>/dev/null
 }
 
-__dplg__load_cache() {
+__sham__load_cache() {
   source $1
 }
 
-__dplg__save_cache() {
+__sham__save_cache() {
   echo "echo \"\${PATH}\" | grep -c \"${__g__bin}\" >/dev/null || export PATH=\"\${PATH}:${__g__bin}\""
 
   local __v__plug=
 
   while read __v__plug
   do
-    __dplg__parse_line "${__v__plug}"
+    __sham__parse_line "${__v__plug}"
     [[ 0 -eq ${__v__status} ]] || continue
 
     {
-      __dplg__of
-      __dplg__use
+      __sham__of
+      __sham__use
     } &
   done | cat
 }
 
-__dplg__message() {
+__sham__message() {
   if [[ -z $@ ]]
   then
     while read msg
@@ -163,7 +163,7 @@ __dplg__message() {
   fi
 }
 
-__dplg__verbose() {
+__sham__verbose() {
   [[ 0 -eq ${__v__verbose} ]] && return
 
   if [[ -z $@ ]]
@@ -176,7 +176,7 @@ __dplg__verbose() {
   fi
 }
 
-__dplg__logger() {
+__sham__logger() {
   if [[ 0 -eq ${__v__verbose} ]]
   then
     cat > /dev/null
@@ -189,7 +189,7 @@ __dplg__logger() {
   fi
 }
 
-__dplg__stringify() {
+__sham__stringify() {
   [[ ! -z ${__v__as} ]] || return
 
   echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#tag:${__v__tag}#of:${__v__of}#use:${__v__use}#post:${__v__post}#from:${__v__from}#status:${1:-${__v__status}}"
@@ -201,10 +201,10 @@ __dplg__stringify() {
 # status 3 ... cached
 # status 4 ... error
 
-__dplg__plugins() {
+__sham__plugins() {
   {
-    __dplg__plugins_curr | sed -e 's/^/when:curr#/g'
-    __dplg__plugins_prev | sed -e 's/^/when:prev#/g'
+    __sham__plugins_curr | sed -e 's/^/when:curr#/g'
+    __sham__plugins_prev | sed -e 's/^/when:prev#/g'
   } \
     | awk -v FS="#" -v OFS="#" '
   {
@@ -274,16 +274,16 @@ __dplg__plugins() {
   END { for(p in pl) { print p,pl[p],"status:"st[p] } }'
 }
 
-__dplg__plugins_prev() {
+__sham__plugins_prev() {
   cat "${__g__state}"
 }
 
-__dplg__plugins_curr() {
-  for __v__plug in "${deplugins[@]}"
+__sham__plugins_curr() {
+  for __v__plug in "${shamese_plugins[@]}"
   do echo "${__v__plug}"
   done
 }
 
-__dplg__append_plugin() {
-  deplugins=("${deplugins[@]}" "$@")
+__sham__append_plugin() {
+  shamese_plugins=("${shamese_plugins[@]}" "$@")
 }

@@ -5,3 +5,4 @@ bin/
 *.bk
 *.log
 tmp/
+.DS_Store

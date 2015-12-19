@@ -1,10 +1,10 @@
-declare -a deplugins=()
+declare -a shamese_plugins=()
 
-deplug() {
+sham() {
   local -a __v__colo=()
   local __g__bin=
   local __g__cache=
-  local __g__home=${DEPLUG_HOME:-~/.deplug}
+  local __g__home=${SHAM_HOME:-~/.sham}
   local __g__repos=
   local __g__state=
   local __v__as=
@@ -25,32 +25,32 @@ deplug() {
   local __v__verbose=0
   local __v__yes=0
 
-  __g__bin=${DEPLUG_BIN:-${__g__home}/bin}
-  __g__cache=${DEPLUG_CACHE:-${__g__home}/cache}
-  __g__repos=${DEPLUG_REPO:-${__g__home}/repos}
-  __g__state=${DEPLUG_STATE:-${__g__home}/state}
+  __g__bin=${SHAM_BIN:-${__g__home}/bin}
+  __g__cache=${SHAM_CACHE:-${__g__home}/cache}
+  __g__repos=${SHAM_REPO:-${__g__home}/repos}
+  __g__state=${SHAM_STATE:-${__g__home}/state}
 
-  __dplg__parse_arguments "$@"
+  __sham__parse_arguments "$@"
 
   if [[ -z ${__v__cmd} ]]
   then
-    __dplg__command__help
+    __sham__command__help
     return 1
   fi
 
-  __dplg__verbose "[DEBUG] command: ${__v__cmd}"
-  "__dplg__command__${__v__cmd}"
+  __sham__verbose "[DEBUG] command: ${__v__cmd}"
+  "__sham__command__${__v__cmd}"
 }
 
-__dplg__command__append() {
-  local __v__plug=$(__dplg__stringify 1)
-  __dplg__append_plugin "${__v__plug}"
+__sham__command__append() {
+  local __v__plug=$(__sham__stringify 1)
+  __sham__append_plugin "${__v__plug}"
 }
 
-__dplg__command__help() {
+__sham__command__help() {
   echo
 }
 
-__dplg__command__reset() {
-  deplugins=()
+__sham__command__reset() {
+  shamese_plugins=()
 }

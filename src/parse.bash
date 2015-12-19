@@ -1,4 +1,4 @@
-__dplg__parse_line() {
+__sham__parse_line() {
   local -a __v__args=()
 
   IFS='#' read -ra __v__args <<< "$@"
@@ -13,7 +13,7 @@ __dplg__parse_line() {
   __v__status=${__v__args[8]#status:}
 }
 
-__dplg__color() {
+__sham__color() {
   __v__colo[0]="\033[m"
   __v__colo[1]="\033[30m"
   __v__colo[2]="\033[31m"
@@ -26,13 +26,13 @@ __dplg__color() {
   __v__colo[9]="\033[m"
 }
 
-__dplg__pipestatus() {
+__sham__pipestatus() {
   local -a __v__pipestatus=(${PIPESTATUS[@]})
-  __dplg__verbose "[DEBUG] pipestatus ${__v__pipestatus[@]}"
+  __sham__verbose "[DEBUG] pipestatus ${__v__pipestatus[@]}"
   return ${__v__pipestatus[$1]}
 }
 
-__dplg__progress() {
+__sham__progress() {
   local -a __v__progress=("|" "/" "-" "\\" "|")
   local __v__inc=0
   local __v__msg=

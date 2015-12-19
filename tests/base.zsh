@@ -8,11 +8,11 @@ include_files() {
   TEST_CASE=zsh
   SHELL=/usr/bin/zsh
 
-  export DEPLUG_HOME=/tmp/tests/zsh
-  export DEPLUG_BIN=/tmp/tests/zsh/bin
-  export DEPLUG_CACHE=/tmp/tests/zsh/cache
-  export DEPLUG_STATE=/tmp/tests/zsh/state
-  export DEPLUG_REPO=/tmp/tests/zsh/repos
+  export SHAM_HOME=/tmp/tests/zsh
+  export SHAM_BIN=/tmp/tests/zsh/bin
+  export SHAM_CACHE=/tmp/tests/zsh/cache
+  export SHAM_STATE=/tmp/tests/zsh/state
+  export SHAM_REPO=/tmp/tests/zsh/repos
 EOF
   cat ${cdir}/../src/*.sh ${cdir}/../src/*.zsh
   cat ${cdir}/utils/*.sh

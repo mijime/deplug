@@ -1,7 +1,4 @@
-<p align="center">
-  <img src="logo.png" alt="sham" />
-</p>
-
+![sham](logo.png "sham")
 `sham` commands
 -----------------
 

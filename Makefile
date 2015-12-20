@@ -1,5 +1,3 @@
-
-
 TEST_OPTIONS=
 TARGET=sham.bash sham.zsh
 COMMON_FILES=$(wildcard src/*.sh)
@@ -17,11 +15,17 @@ sham.zsh: $(COMMON_FILES) $(ZSH_FILES)
 
 test: $(TEST_FILES)
 
-tests/*.zsh: sham.zsh
+tests/%.zsh:
 	zsh $(TEST_OPTIONS) $@
 
-tests/*.bash: sham.bash
+tests/%.bash:
 	bash $(TEST_OPTIONS) $@
 
-test_docker:
-	docker run --rm --volume /$$(pwd)://wk --workdir //wk --env=TEST_TARGET=$(TEST_TARGET) ko1nksm/bash:3.0 bash $(TEST_OPTIONS) tests/base.bash
+docker/%: tests/dockerfiles/%/Dockerfile
+	docker build -t $* -f $< .
+
+docker.build/bash_%: docker/bash_%
+	docker run --rm --volume /$$(pwd)://wk --workdir //wk --env=TEST_TARGET=$(TEST_TARGET) \
+		$* bash $(TEST_OPTIONS) tests/base.bash
+
+tests/docker: docker.build/bash_3.0 docker.build/bash_4.0

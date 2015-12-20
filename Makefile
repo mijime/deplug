@@ -24,7 +24,7 @@ tests/%.bash:
 docker/%: tests/dockerfiles/%/Dockerfile
 	docker build -t $* -f $< .
 
-docker.build/bash_%: docker/bash_%
+docker.build/%: docker/%
 	docker run --rm --volume /$$(pwd)://wk --workdir //wk --env=TEST_TARGET=$(TEST_TARGET) \
 		$* bash $(TEST_OPTIONS) tests/base.bash
 

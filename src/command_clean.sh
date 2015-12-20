@@ -15,7 +15,7 @@ __sham__command__clean() {
 
     case ${__v__status} in
       3|4)
-        __sham__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
         __v__has_trash=1
         ;;
     esac
@@ -25,7 +25,7 @@ __sham__command__clean() {
 
   if [[ 0 -eq ${__v__yes} ]]
   then
-    echo -n -e "${__v__colo[7]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
+    echo -n -e "${__v__colo[4]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
     read __v__ans
     echo
   else
@@ -46,9 +46,9 @@ __sham__command__clean() {
     case ${__v__status} in
       3|4)
         __sham__stringify | sed -e 's/^/[DEBUG] clean /g' | __sham__verbose
-        __sham__message "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__display}"
-        rm -rf "${__v__dir}" 2>&1 | __sham__logger "${__v__colo[5]}Clean..  ${__v__colo[9]} ${__v__as}"
-        __sham__message "${__v__colo[1]}Cleaned  ${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__display}"
+        rm -rf "${__v__dir}" 2>&1 | __sham__logger "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__as}"
+        __sham__message "${__v__colo[2]}Cleaned  ${__v__colo[9]} ${__v__display}"
         ;;
       *)
         __sham__stringify

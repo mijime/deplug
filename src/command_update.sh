@@ -30,30 +30,30 @@ __sham__update() {
       ;;
   esac
 
-  __sham__message "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
+  __sham__message "${__v__colo[3]}Update.. ${__v__colo[9]} ${__v__as}"
 
-  __sham__update_plugin 2>&1 | __sham__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}:"
+  __sham__update_plugin 2>&1 | __sham__logger "${__v__colo[3]}Update.. ${__v__colo[9]} ${__v__as}:"
 
   if ! __sham__pipestatus 0
   then
-    __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
+    __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
     __sham__stringify 4
     return
   fi
 
   if [[ ! -z ${__v__post} ]]
   then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
+    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
 
     if ! __sham__pipestatus 0
     then
-      __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
+      __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as}"
       __sham__stringify 4
       return
     fi
   fi
 
-  __sham__message "${__v__colo[4]}Updated${__v__colo[9]} ${__v__as}"
+  __sham__message "${__v__colo[7]}Updated  ${__v__colo[9]} ${__v__as}"
   __sham__stringify 0
 }
 

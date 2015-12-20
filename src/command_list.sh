@@ -15,22 +15,22 @@ __sham__command__list() {
 
     case ${__v__status} in
       0)
-        __sham__message "${__v__colo[4]}Installed${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[7]}Installed${__v__colo[9]} ${__v__display}"
         ;;
       1)
-        __sham__message "${__v__colo[5]}NoInstall${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[3]}NoInstall${__v__colo[9]} ${__v__display}"
         __v__iserr=1
         ;;
       2)
-        __sham__message "${__v__colo[6]}Changed  ${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[5]}Changed  ${__v__colo[9]} ${__v__display}"
         __v__iserr=1
         ;;
       3)
-        __sham__message "${__v__colo[7]}Cached   ${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
         __v__iserr=1
         ;;
       4)
-        __sham__message "${__v__colo[1]}Failed   ${__v__colo[9]} ${__v__display}"
+        __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__display}"
         __v__iserr=1
         ;;
     esac

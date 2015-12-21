@@ -1,3 +1,47 @@
+__sham__command__load() {
+  [[ ! -z ${shamese_plugins[@]} ]] || return
+  if [[ ! -f ${__g__cache} ]]
+  then
+    __sham__init
+    __sham__plugins_prev | __sham__save_cache > "${__g__cache}"
+  fi
+  source "${__g__cache}"
+}
+__sham__command__list() {
+  __sham__init
+  local __v__display=
+  local __v__iserr=0
+  __sham__plugins | while read __v__plug
+  do
+    __sham__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      0)
+        __sham__message "${__v__colo[7]}Installed${__v__colo[9]} ${__v__display}"
+        ;;
+      1)
+        __sham__message "${__v__colo[3]}NoInstall${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      2)
+        __sham__message "${__v__colo[5]}Changed  ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      3)
+        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+      4)
+        __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__display}"
+        __v__iserr=1
+        ;;
+    esac
+  done
+  return ${__v__iserr}
+}
 declare -a shamese_plugins=()
 sham() {
   local -a __v__colo=()
@@ -45,54 +89,6 @@ __sham__command__help() {
 __sham__command__reset() {
   shamese_plugins=()
 }
-__sham__command__clean() {
-  local __v__has_trash=0
-  local __v__ans=
-  __sham__init
-  __sham__plugins | while read __v__plug
-  do
-    __sham__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      3|4)
-        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
-        __v__has_trash=1
-        ;;
-    esac
-  done
-  [[ 0 -eq ${__v__has_trash} ]] && return
-  if [[ 0 -eq ${__v__yes} ]]
-  then
-    echo -n -e "${__v__colo[4]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
-    read __v__ans
-    echo
-  else
-    __v__ans=y
-  fi
-  [[ "${__v__ans}" == "y" ]] || return
-  __sham__plugins | while read __v__plug
-  do
-    __sham__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      3|4)
-        __sham__message "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__display}"
-        rm -rf "${__v__dir}" 2>&1 | __sham__logger "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__as}"
-        __sham__message "${__v__colo[2]}Cleaned  ${__v__colo[9]} ${__v__display}"
-        ;;
-      *)
-        __sham__stringify
-        ;;
-    esac
-  done | cat > "${__g__state}".bk
-  mv "${__g__state}"{.bk,}
-}
 __sham__command__install() {
   [[ ! -z ${shamese_plugins[@]} ]] || return
   __sham__init
@@ -120,21 +116,21 @@ __sham__install() {
   __sham__install_plugin 2>&1 | __sham__logger "${__v__colo[3]}Install..${__v__colo[9]} ${__v__as}:"
   if ! __sham__pipestatus 0
   then
-    __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
+    __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
     __sham__stringify 4
     return
   fi
   if [[ ! -z ${__v__post} ]]
   then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
+    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
     if ! __sham__pipestatus 0
     then
-      __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
+      __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as}"
       __sham__stringify 4
       return
     fi
   fi
-  __sham__message "${__v__colo[4]}Installed${__v__colo[9]} ${__v__as}"
+  __sham__message "${__v__colo[7]}Installed${__v__colo[9]} ${__v__as}"
   __sham__stringify 0
 }
 __sham__install_plugin() {
@@ -157,118 +153,6 @@ __sham__install_plugin() {
     fi
     cd "${__v__pwd}"
   fi
-}
-__sham__command__list() {
-  __sham__init
-  local __v__display=
-  local __v__iserr=0
-  __sham__plugins | while read __v__plug
-  do
-    __sham__parse_line "${__v__plug}"
-    if [[ 0 -eq ${__v__verbose} ]]
-    then __v__display="${__v__as}"
-    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
-    fi
-    case ${__v__status} in
-      0)
-        __sham__message "${__v__colo[7]}Installed${__v__colo[9]} ${__v__display}"
-        ;;
-      1)
-        __sham__message "${__v__colo[3]}NoInstall${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      2)
-        __sham__message "${__v__colo[5]}Changed  ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      3)
-        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-      4)
-        __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__display}"
-        __v__iserr=1
-        ;;
-    esac
-  done
-  return ${__v__iserr}
-}
-__sham__command__load() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
-  if [[ ! -f ${__g__cache} ]]
-  then
-    __sham__init
-    __sham__plugins_prev | __sham__save_cache > "${__g__cache}"
-  fi
-  source "${__g__cache}"
-}
-__sham__command__update() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
-  __sham__init
-  local __v__plug=
-  __sham__plugins | while read __v__plug
-  do
-    __sham__parse_line "${__v__plug}"
-    __sham__update &
-  done | cat > "${__g__state}".bk
-  mv "${__g__state}"{.bk,}
-  __sham__plugins | __sham__save_cache > "${__g__cache}"
-  __sham__load_cache "${__g__cache}"
-}
-__sham__update() {
-  local __v__plug=
-  local __v__errcode=0
-  local __v__msgfmt=""
-  case ${__v__status} in
-    3)
-      __sham__stringify "${__v__status}"
-      return
-      ;;
-  esac
-  __sham__message "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}"
-  __sham__update_plugin 2>&1 | __sham__logger "${__v__colo[3]}Update..${__v__colo[9]} ${__v__as}:"
-  if ! __sham__pipestatus 0
-  then
-    __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
-    __sham__stringify 4
-    return
-  fi
-  if [[ ! -z ${__v__post} ]]
-  then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..${__v__colo[9]} ${__v__as}:"
-    if ! __sham__pipestatus 0
-    then
-      __sham__message "${__v__colo[2]}Failed${__v__colo[9]} ${__v__as}"
-      __sham__stringify 4
-      return
-    fi
-  fi
-  __sham__message "${__v__colo[4]}Updated${__v__colo[9]} ${__v__as}"
-  __sham__stringify 0
-}
-__sham__update_plugin() {
-  __v__pwd=$(pwd)
-  cd "${__v__dir}" || return 1
-  git pull
-  __v__errcode=$?
-  if [[ ${__v__errcode} -gt 0 ]]
-  then
-    cd "${__v__pwd}"
-    return 1
-  fi
-  if [[ ! -z "${__v__tag}" ]]
-  then
-    __v__pwd=$(pwd)
-    cd "${__v__dir}" || return 1
-    git checkout ${__v__tag}
-    __v__errcode=$?
-    if [[ ${__v__errcode} -gt 0 ]]
-    then
-      cd "${__v__pwd}"
-      return 1
-    fi
-  fi
-  cd "${__v__pwd}"
 }
 __sham__init() {
   mkdir -p ${__g__home} ${__g__repos} ${__g__bin}
@@ -501,6 +385,122 @@ __sham__plugins_curr() {
 }
 __sham__append_plugin() {
   shamese_plugins=("${shamese_plugins[@]}" "$@")
+}
+__sham__command__update() {
+  [[ ! -z ${shamese_plugins[@]} ]] || return
+  __sham__init
+  local __v__plug=
+  __sham__plugins | while read __v__plug
+  do
+    __sham__parse_line "${__v__plug}"
+    __sham__update &
+  done | cat > "${__g__state}".bk
+  mv "${__g__state}"{.bk,}
+  __sham__plugins | __sham__save_cache > "${__g__cache}"
+  __sham__load_cache "${__g__cache}"
+}
+__sham__update() {
+  local __v__plug=
+  local __v__errcode=0
+  local __v__msgfmt=""
+  case ${__v__status} in
+    3)
+      __sham__stringify "${__v__status}"
+      return
+      ;;
+  esac
+  __sham__message "${__v__colo[3]}Update.. ${__v__colo[9]} ${__v__as}"
+  __sham__update_plugin 2>&1 | __sham__logger "${__v__colo[3]}Update.. ${__v__colo[9]} ${__v__as}:"
+  if ! __sham__pipestatus 0
+  then
+    __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as} ${__v__colo[3]}"
+    __sham__stringify 4
+    return
+  fi
+  if [[ ! -z ${__v__post} ]]
+  then
+    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
+    if ! __sham__pipestatus 0
+    then
+      __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as}"
+      __sham__stringify 4
+      return
+    fi
+  fi
+  __sham__message "${__v__colo[7]}Updated  ${__v__colo[9]} ${__v__as}"
+  __sham__stringify 0
+}
+__sham__update_plugin() {
+  __v__pwd=$(pwd)
+  cd "${__v__dir}" || return 1
+  git pull
+  __v__errcode=$?
+  if [[ ${__v__errcode} -gt 0 ]]
+  then
+    cd "${__v__pwd}"
+    return 1
+  fi
+  if [[ ! -z "${__v__tag}" ]]
+  then
+    __v__pwd=$(pwd)
+    cd "${__v__dir}" || return 1
+    git checkout ${__v__tag}
+    __v__errcode=$?
+    if [[ ${__v__errcode} -gt 0 ]]
+    then
+      cd "${__v__pwd}"
+      return 1
+    fi
+  fi
+  cd "${__v__pwd}"
+}
+__sham__command__clean() {
+  local __v__has_trash=0
+  local __v__ans=
+  __sham__init
+  __sham__plugins | while read __v__plug
+  do
+    __sham__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      3|4)
+        __sham__message "${__v__colo[4]}Cached   ${__v__colo[9]} ${__v__display}"
+        __v__has_trash=1
+        ;;
+    esac
+  done
+  [[ 0 -eq ${__v__has_trash} ]] && return
+  if [[ 0 -eq ${__v__yes} ]]
+  then
+    echo -n -e "${__v__colo[4]}Do you really want to clean? [y/N]: ${__v__colo[9]}"
+    read __v__ans
+    echo
+  else
+    __v__ans=y
+  fi
+  [[ "${__v__ans}" == "y" ]] || return
+  __sham__plugins | while read __v__plug
+  do
+    __sham__parse_line "${__v__plug}"
+    if [[ 0 -eq ${__v__verbose} ]]
+    then __v__display="${__v__as}"
+    else __v__display="${__v__as} (plugin: ${__v__plugin}, dir: ${__v__dir})"
+    fi
+    case ${__v__status} in
+      3|4)
+        __sham__message "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__display}"
+        rm -rf "${__v__dir}" 2>&1 | __sham__logger "${__v__colo[6]}Clean..  ${__v__colo[9]} ${__v__as}"
+        __sham__message "${__v__colo[2]}Cleaned  ${__v__colo[9]} ${__v__display}"
+        ;;
+      *)
+        __sham__stringify
+        ;;
+    esac
+  done | cat > "${__g__state}".bk
+  mv "${__g__state}"{.bk,}
 }
 __sham__parse_line() {
   local -a __v__args=()

@@ -67,15 +67,15 @@ __sham__parse_arguments() {
   done
 
   if [[ -z ${__v__as} ]]
-  then __v__as=${__v__plugin##*/}
+  then __v__as=${__v__plugin}
   fi
 
   if [[ -z "${__v__dir}"  ]]
-  then __v__dir="${__g__repos}/${__v__as}"
+  then __v__dir="${__g__repos}/${__v__plugin}"
   fi
 
   if [[ -z "${__v__from}"  ]]
-  then __v__from="https://github.com/${__v__plugin}"
+  then __v__from="https://github.com/${__v__plugin}.git"
   fi
 
   if [[ 1 -eq ${__v__usecolo} ]]

@@ -1,4 +1,18 @@
 ![sham](logo.png "sham")
+
+`sham` options
+-----------------
+
+| options | description | default                                | examples                                   |
+| :------ | :------     | :------                                | :------                                    |
+| `of`    |             |                                        | `of: "*.{zsh,sh}"`                         |
+| `use`   |             |                                        | `use:"bin/*"`                              |
+| `at`    |             |                                        | `at:master`                                |
+| `do`    |             |                                        | `do:'./install --all'`                     |
+| `dir`   |             | `{repository dir}/plugin name`         | `dir: ~/.fzf`                              |
+| `as`    |             |                                        | `as: other_unique_name`                    |
+| `from`  |             | `https://github.com/{plugin name}.git` | `from:https://gist.github.com/9580883.git` |
+
 `sham` commands
 -----------------
 

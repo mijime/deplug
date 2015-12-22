@@ -83,13 +83,13 @@ __sham__parse_arguments() {
   fi
 }
 
-__sham__post() {
-  [[ -z ${__v__post} ]] && return
+__sham__do() {
+  [[ -z ${__v__do} ]] && return
 
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
 
-  eval ${__v__post}
+  eval ${__v__do}
 
   __v__errcode=$?
   if [[ ${__v__errcode} -gt 0 ]]
@@ -192,7 +192,7 @@ __sham__logger() {
 __sham__stringify() {
   [[ ! -z ${__v__as} ]] || return
 
-  echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#tag:${__v__tag}#of:${__v__of}#use:${__v__use}#post:${__v__post}#from:${__v__from}#status:${1:-${__v__status}}"
+  echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#at:${__v__at}#of:${__v__of}#use:${__v__use}#do:${__v__do}#from:${__v__from}#status:${1:-${__v__status}}"
 }
 
 # status 0 ... already installed

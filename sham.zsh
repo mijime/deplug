@@ -59,10 +59,10 @@ sham() {
   local __v__key=
   local __v__of=
   local __v__plugin=
-  local __v__post=
+  local __v__do=
   local __v__pwd=
   local __v__status=
-  local __v__tag=
+  local __v__at=
   local __v__use=
   local __v__usecolo=1
   local __v__verbose=0
@@ -120,9 +120,9 @@ __sham__install() {
     __sham__stringify 4
     return
   fi
-  if [[ ! -z ${__v__post} ]]
+  if [[ ! -z ${__v__do} ]]
   then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
+    __sham__do 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
     if ! __sham__pipestatus 0
     then
       __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as}"
@@ -140,11 +140,11 @@ __sham__install_plugin() {
     __v__errcode=$?
     [[ ${__v__errcode} -gt 0 ]] && return 1
   fi
-  if [[ ! -z "${__v__tag}" ]]
+  if [[ ! -z "${__v__at}" ]]
   then
     __v__pwd=$(pwd)
     cd "${__v__dir}" || return 1
-    git checkout ${__v__tag}
+    git checkout ${__v__at}
     __v__errcode=$?
     if [[ ${__v__errcode} -gt 0 ]]
     then
@@ -224,11 +224,11 @@ __sham__parse_arguments() {
   then __sham__color
   fi
 }
-__sham__post() {
-  [[ -z ${__v__post} ]] && return
+__sham__do() {
+  [[ -z ${__v__do} ]] && return
   __v__pwd=$(pwd)
   cd "${__v__dir}" || return 1
-  eval ${__v__post}
+  eval ${__v__do}
   __v__errcode=$?
   if [[ ${__v__errcode} -gt 0 ]]
   then
@@ -313,7 +313,7 @@ __sham__logger() {
 }
 __sham__stringify() {
   [[ ! -z ${__v__as} ]] || return
-  echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#tag:${__v__tag}#of:${__v__of}#use:${__v__use}#post:${__v__post}#from:${__v__from}#status:${1:-${__v__status}}"
+  echo "as:${__v__as}#plugin:${__v__plugin}#dir:${__v__dir}#at:${__v__at}#of:${__v__of}#use:${__v__use}#do:${__v__do}#from:${__v__from}#status:${1:-${__v__status}}"
 }
 # status 0 ... already installed
 # status 1 ... not install
@@ -417,9 +417,9 @@ __sham__update() {
     __sham__stringify 4
     return
   fi
-  if [[ ! -z ${__v__post} ]]
+  if [[ ! -z ${__v__do} ]]
   then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
+    __sham__do 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
     if ! __sham__pipestatus 0
     then
       __sham__message "${__v__colo[2]}Failed   ${__v__colo[9]} ${__v__as}"
@@ -440,11 +440,11 @@ __sham__update_plugin() {
     cd "${__v__pwd}"
     return 1
   fi
-  if [[ ! -z "${__v__tag}" ]]
+  if [[ ! -z "${__v__at}" ]]
   then
     __v__pwd=$(pwd)
     cd "${__v__dir}" || return 1
-    git checkout ${__v__tag}
+    git checkout ${__v__at}
     __v__errcode=$?
     if [[ ${__v__errcode} -gt 0 ]]
     then
@@ -508,10 +508,10 @@ __sham__parse_line() {
   __v__as=${__v__args[1]#as:}
   __v__plugin=${__v__args[2]#plugin:}
   __v__dir=${__v__args[3]#dir:}
-  __v__tag=${__v__args[4]#tag:}
+  __v__at=${__v__args[4]#at:}
   __v__of=${__v__args[5]#of:}
   __v__use=${__v__args[6]#use:}
-  __v__post=${__v__args[7]#post:}
+  __v__do=${__v__args[7]#do:}
   __v__from=${__v__args[8]#from:}
   __v__status=${__v__args[9]#status:}
 }

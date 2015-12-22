@@ -6,10 +6,10 @@ __sham__parse_line() {
   __v__as=${__v__args[1]#as:}
   __v__plugin=${__v__args[2]#plugin:}
   __v__dir=${__v__args[3]#dir:}
-  __v__tag=${__v__args[4]#tag:}
+  __v__at=${__v__args[4]#at:}
   __v__of=${__v__args[5]#of:}
   __v__use=${__v__args[6]#use:}
-  __v__post=${__v__args[7]#post:}
+  __v__do=${__v__args[7]#do:}
   __v__from=${__v__args[8]#from:}
   __v__status=${__v__args[9]#status:}
 }

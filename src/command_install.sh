@@ -41,9 +41,9 @@ __sham__install() {
     return
   fi
 
-  if [[ ! -z ${__v__post} ]]
+  if [[ ! -z ${__v__do} ]]
   then
-    __sham__post 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
+    __sham__do 2>&1 | __sham__logger "${__v__colo[3]}Doing..  ${__v__colo[9]} ${__v__as}:"
 
     if ! __sham__pipestatus 0
     then
@@ -65,11 +65,11 @@ __sham__install_plugin() {
     [[ ${__v__errcode} -gt 0 ]] && return 1
   fi
 
-  if [[ ! -z "${__v__tag}" ]]
+  if [[ ! -z "${__v__at}" ]]
   then
     __v__pwd=$(pwd)
     cd "${__v__dir}" || return 1
-    git checkout ${__v__tag}
+    git checkout ${__v__at}
     __v__errcode=$?
     if [[ ${__v__errcode} -gt 0 ]]
     then

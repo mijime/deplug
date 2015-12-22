@@ -16,10 +16,10 @@ sham() {
   local __v__key=
   local __v__of=
   local __v__plugin=
-  local __v__post=
+  local __v__do=
   local __v__pwd=
   local __v__status=
-  local __v__tag=
+  local __v__at=
   local __v__use=
   local __v__usecolo=1
   local __v__verbose=0

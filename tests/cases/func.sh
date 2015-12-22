@@ -19,18 +19,18 @@ testInitial() {
 
 testCase() {
   evalute 'glob'    __sham__glob "${SHAM_HOME}/dir"
-  evalute 'parse'   __sham__parse_arguments "test/test" dir: "${SHAM_HOME}/dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+  evalute 'parse'   __sham__parse_arguments "test/test" dir: "${SHAM_HOME}/dir" --do 'cat *.sh' of:'*.sh' --use='*.sh'
   evalute 'of'      __sham__of
   evalute 'use'     __sham__use
-  evalute 'post'    __sham__post
+  evalute 'do'    __sham__do
 }
 
 testCaseSpace() {
   evalute 'spacedir glob'    __sham__glob "${SHAM_HOME}/space\ dir"
-  evalute 'spacedir parse'   __sham__parse_arguments "test/test" dir: "${SHAM_HOME}/space dir" --post 'cat *.sh' of:'*.sh' --use='*.sh'
+  evalute 'spacedir parse'   __sham__parse_arguments "test/test" dir: "${SHAM_HOME}/space dir" --do 'cat *.sh' of:'*.sh' --use='*.sh'
   evalute 'spacedir of'      __sham__of
   evalute 'spacedir use'     __sham__use
-  # evalute 'spacedir post'    __sham__post # TODO
+  # evalute 'spacedir do'    __sham__do # TODO
 }
 
 testInitial

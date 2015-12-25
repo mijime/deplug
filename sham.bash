@@ -331,21 +331,28 @@ __sham__plugins() {
     split($10,stat,":")
   }
   !st[$2] && $1=="when:curr" {
+    if (dir[$4] && when[$2]=="when:prev")
+      delete pl[dir[$4]]
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=1
+    dir[$4]=$2
     next
   }
   !st[$2] && $1=="when:prev" && stat[$2]==4 {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
+    dir[$4]=$2
     next
   }
   !st[$2] && $1=="when:prev" && stat[$2]!=4 {
+    if (dir[$4])
+      next
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=3
+    dir[$4]=$2
     next
   }
   (stat[2]==4 || st[$2]==4) && $1=="when:prev" {
@@ -356,6 +363,7 @@ __sham__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
+    dir[$4]=$2
     next
   }
   pl[$2]==ctx && $1!=when[2] {
@@ -367,6 +375,7 @@ __sham__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=2
+    dir[$4]=$2
     next
   }
   pl[$2]!=ctx && $1=="when:prev" {

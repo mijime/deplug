@@ -213,9 +213,13 @@ __sham__plugins() {
   }
 
   !st[$2] && $1=="when:curr" {
+    if (dir[$4] && when[$2]=="when:prev")
+      delete pl[dir[$4]]
+
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=1
+    dir[$4]=$2
     # print "[DEBUG]",1,$0 > "/dev/stderr"
     next
   }
@@ -224,14 +228,19 @@ __sham__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
+    dir[$4]=$2
     # print "[DEBUG]",4,$0 > "/dev/stderr"
     next
   }
 
   !st[$2] && $1=="when:prev" && stat[$2]!=4 {
+    if (dir[$4])
+      next
+
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=3
+    dir[$4]=$2
     # print "[DEBUG]",3,$0 > "/dev/stderr"
     next
   }
@@ -246,6 +255,7 @@ __sham__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=4
+    dir[$4]=$2
     # print "[DEBUG]",4,$0 > "/dev/stderr"
     next
   }
@@ -261,6 +271,7 @@ __sham__plugins() {
     pl[$2]=ctx
     when[$2]=$1
     st[$2]=2
+    dir[$4]=$2
     # print "[DEBUG]",2,$0 > "/dev/stderr"
     next
   }

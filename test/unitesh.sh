@@ -10,7 +10,8 @@ __unitesh__run() {
 
   cat << EOF > "${unittest}"
 #!/bin/bash
-export UNITTEST_NUMBER=$$;
+export UNITTEST_NO=$$;
+
 setup() { :; }
 teardown() { :; }
 source "${unitfile}";
@@ -28,14 +29,14 @@ do
   if [[ \${result} -gt 0 ]]
   then
     printf "\\r%3s %3s %s\\n" "err" "\${result}" "\$unittest";
-    cat "${stdout}" | sed "s/^/[\$UNITTEST_NUMBER] [OUT] /g";
-    cat "${stderr}" | sed "s/^/[\$UNITTEST_NUMBER] [ERR] /g";
+    cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
+    cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
     break;
   elif [[ ${verbose} -gt 0 ]]
   then
     printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
-    cat "${stdout}" | sed "s/^/[\$UNITTEST_NUMBER] [OUT] /g";
-    cat "${stderr}" | sed "s/^/[\$UNITTEST_NUMBER] [ERR] /g";
+    cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
+    cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
   else
     printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
   fi

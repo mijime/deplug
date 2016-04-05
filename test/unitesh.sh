@@ -42,7 +42,7 @@ do
 done
 EOF
 
-  "${shell:-bash}" "${unittest}"
+  "${shell}" "${unittest}"
   rm "${unittest}" "${stdout}" "${stderr}"
 }
 

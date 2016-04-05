@@ -3,7 +3,7 @@ TARGET=sham.bash sham.zsh
 COMMON_FILES=$(wildcard src/*.sh)
 BASH_FILES=$(wildcard src/*.bash)
 ZSH_FILES=$(wildcard src/*.zsh)
-TEST_FILES=$(wildcard tests/*.zsh tests/*.bash)
+TEST_TARGET=$(wildcard test/*/*.sh)
 
 all: $(TARGET)
 
@@ -13,19 +13,15 @@ sham.bash: $(COMMON_FILES) $(BASH_FILES)
 sham.zsh: $(COMMON_FILES) $(ZSH_FILES)
 	cat $^ | grep -v '\[DEBUG\]' | grep -v '^$$' > $@
 
-test: $(TEST_FILES)
+test: $(TEST_TARGET)
 
-tests/%.zsh:
-	zsh $(TEST_OPTIONS) $@
+test/%.sh: $(TARGET)
+	test/unitesh.sh $@
 
-tests/%.bash:
-	bash $(TEST_OPTIONS) $@
+docker/%/build: docker/%
+	docker build --tag=sham:$* $<
 
-docker/%: tests/dockerfiles/%/Dockerfile
-	docker build -t $* -f $< .
+docker/%/test: docker/%/build $(TEST_TARGET) $(TARGET)
+	docker run --rm --volume /$$(pwd)://w --workdir //w sham:$* test/unitesh.sh $(TEST_TARGET)
 
-docker.build/%: docker/%
-	docker run --rm --volume /$$(pwd)://wk --workdir //wk --env=TEST_TARGET=$(TEST_TARGET) \
-		$* bash $(TEST_OPTIONS) tests/base.bash
-
-tests/docker: docker.build/bash_3.0 docker.build/bash_4.0
+docker: docker/bash-3.0/test docker/bash-4.0/test docker/bash/test docker/zsh/test

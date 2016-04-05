@@ -8,14 +8,14 @@ setup() {
   source bin/sham.sh;
 }
 
-__test__be_sure_installed_plugins () {
+__test__install_01 () {
   sham mijime/sham --from=file://.;
   sham install;
 
   [[ -d "${SHAM_HOME}/repos/mijime/sham" ]];
 }
 
-__test__be_sure_installed_plugins_and_doing() {
+__test__install_02_doing() {
   sham mijime/sham --dir="${SHAM_HOME}/repo" --from=file://. --do="touch ../helloworld";
   sham install;
 
@@ -23,14 +23,14 @@ __test__be_sure_installed_plugins_and_doing() {
     && [[ -f "${SHAM_HOME}/helloworld" ]];
 }
 
-__test__be_sure_installed_plugins_and_included() {
+__test__install_03_included() {
   sham mijime/sham --from=file://. --of=src/*.sh;
   sham install;
 
   grep -c src/*.sh "${SHAM_HOME}/cache";
 }
 
-__test__be_sure_installed_plugins_and_using() {
+__test__install_04_using() {
   sham mijime/sham --from=file://. --use=test/*.sh;
   sham install;
 

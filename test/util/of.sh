@@ -11,7 +11,7 @@ teardown() {
   [[ ! -d /tmp/sham ]] || rm -r /tmp/sham;
 }
 
-__test__of() {
+__test__of_01() {
   local \
     __v__dir=/tmp/sham/repos/dir \
     __v__of=file-*

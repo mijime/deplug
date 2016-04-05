@@ -31,8 +31,8 @@ __test__be_sure_installed_plugins_and_included() {
 }
 
 __test__be_sure_installed_plugins_and_using() {
-  sham mijime/sham --from=file://. --use=src/*.sh;
+  sham mijime/sham --from=file://. --use=test/*.sh;
   sham install;
 
-  [[ -L ${SHAM_HOME}/bin/*.sh ]];
+  [[ -L ${SHAM_HOME}/bin/unitesh.sh ]];
 }

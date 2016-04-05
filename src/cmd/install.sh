@@ -59,4 +59,6 @@ __sham__cmd__install() {
   then
     mv "${__g__cache}"{.tmp,}
   fi
+
+  unset SHAM_PLUGS
 }

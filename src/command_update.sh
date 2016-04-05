@@ -1,5 +1,5 @@
 __sham__command__update() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
 
   __sham__init
 

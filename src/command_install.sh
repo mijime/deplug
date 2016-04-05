@@ -1,5 +1,5 @@
 __sham__command__install() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
 
   __sham__init
 

@@ -1,5 +1,5 @@
 __sham__command__load() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
 
 
   if [[ ! -f ${__g__cache} ]]

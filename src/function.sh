@@ -206,7 +206,7 @@ __sham__plugins() {
     __sham__plugins_curr | sed -e 's/^/when:curr#/g'
     __sham__plugins_prev | sed -e 's/^/when:prev#/g'
   } \
-    | awk -v FS="#" -v OFS="#" '
+    | awk -v FS="#" -v OFS="#" -v RS="@" -v ORS="@"'
   {
     ctx=$3"#"$4"#"$5"#"$6"#"$7"#"$8"#"$9
     split($10,stat,":")
@@ -290,11 +290,11 @@ __sham__plugins_prev() {
 }
 
 __sham__plugins_curr() {
-  for __v__plug in "${shamese_plugins[@]}"
+  for __v__plug in "${SHAM_PLUGS[@]}"
   do echo "${__v__plug}"
   done
 }
 
 __sham__append_plugin() {
-  shamese_plugins=("${shamese_plugins[@]}" "$@")
+  SHAM_PLUGS=("${SHAM_PLUGS[@]}" "$@")
 }

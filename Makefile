@@ -1,17 +1,12 @@
 TEST_OPTIONS=
-TARGET=sham.bash sham.zsh
-COMMON_FILES=$(wildcard src/*.sh)
-BASH_FILES=$(wildcard src/*.bash)
-ZSH_FILES=$(wildcard src/*.zsh)
+TARGET=bin/sham.sh
+SRC_TARGET=$(wildcard src/*/*.sh) src/sham.sh
 TEST_TARGET=$(wildcard test/*/*.sh)
 
-all: $(TARGET)
+all: $(TARGET) test
 
-sham.bash: $(COMMON_FILES) $(BASH_FILES)
-	cat $^ | grep -v '\[DEBUG\]' | grep -v '^$$' > $@
-
-sham.zsh: $(COMMON_FILES) $(ZSH_FILES)
-	cat $^ | grep -v '\[DEBUG\]' | grep -v '^$$' > $@
+$(TARGET): $(SRC_TARGET)
+	cat $^ > $@
 
 test: $(TEST_TARGET)
 

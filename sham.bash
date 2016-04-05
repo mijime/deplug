@@ -1,5 +1,5 @@
 __sham__command__load() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
   if [[ ! -f ${__g__cache} ]]
   then
     __sham__init
@@ -42,55 +42,8 @@ __sham__command__list() {
   done
   return ${__v__iserr}
 }
-declare -a shamese_plugins=()
-sham() {
-  local -a __v__colo=()
-  local __g__bin=
-  local __g__cache=
-  local __g__home=${SHAM_HOME:-~/.sham}
-  local __g__repos=
-  local __g__state=
-  local __v__as=
-  local __v__cmd=
-  local __v__dir=
-  local __v__errcode=0
-  local __v__errmsg=
-  local __v__from=
-  local __v__key=
-  local __v__of=
-  local __v__plugin=
-  local __v__do=
-  local __v__pwd=
-  local __v__status=
-  local __v__at=
-  local __v__use=
-  local __v__usecolo=1
-  local __v__verbose=0
-  local __v__yes=0
-  __g__bin=${SHAM_BIN:-${__g__home}/bin}
-  __g__cache=${SHAM_CACHE:-${__g__home}/cache}
-  __g__repos=${SHAM_REPO:-${__g__home}/repos}
-  __g__state=${SHAM_STATE:-${__g__home}/state}
-  __sham__parse_arguments "$@"
-  if [[ -z ${__v__cmd} ]]
-  then
-    __sham__command__help
-    return 1
-  fi
-  "__sham__command__${__v__cmd}"
-}
-__sham__command__append() {
-  local __v__plug=$(__sham__stringify 1)
-  __sham__append_plugin "${__v__plug}"
-}
-__sham__command__help() {
-  echo
-}
-__sham__command__reset() {
-  shamese_plugins=()
-}
 __sham__command__install() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
   __sham__init
   local __v__plug=
   __sham__plugins | while read __v__plug
@@ -154,6 +107,87 @@ __sham__install_plugin() {
     cd "${__v__pwd}"
   fi
 }
+#!/bin/bash
+declare -a SHAM_PLUGS=()
+sham() {
+  local \
+    __g__home=${SHAM_HOME:-~/.sham} \
+    __g__bin= \
+    __g__cache= \
+    __g__repos= \
+    __g__state= \
+    __g__cmd=
+  local -a \
+    __g__colo=()
+  local \
+    __v__plug= \
+    __v__as= \
+    __v__at= \
+    __v__dir= \
+    __v__from= \
+    __v__of= \
+    __v__use= \
+    __v__do= \
+    __v__verbose=
+  __g__bin=${SHAM_BIN:-${__g__home}/bin}
+  __g__cache=${SHAM_CACHE:-${__g__home}/cache}
+  __g__repos=${SHAM_REPO:-${__g__home}/repos}
+  __g__state=${SHAM_STATE:-${__g__home}/state}
+  while [[ $# -gt 0 ]]
+  do
+    local __v__tmp_key=
+    case $1 in
+      --verbose|-v)
+        __v__verbose=1
+        shift || break
+        ;;
+      *:)
+        eval "__v__${1%%:*}=\"$2\""
+        shift 2 || break
+        ;;
+      --*)
+        eval "__v__${1#--}=\"$2\""
+        shift 2 || break
+        ;;
+      *:*)
+        eval "__v__${1%%:*}=\"${1#*:}\""
+        shift || break
+        ;;
+      --*=*)
+        __v__tmp_key=${1#--}
+        __v__tmp_key=${__v__tmp_key%%=*}
+        eval "__v__${__v__tmp_key}=\"${1#*=}\""
+        shift || break
+        ;;
+      *://*/*)
+        __g__cmd=append
+        __v__from=$1
+        __v__plug=${1#*://}
+        shift || break
+        ;;
+      */*)
+        __g__cmd=append
+        __v__plug=$1
+        shift || break
+        ;;
+      *)
+        __g__cmd=$1
+        shift || break
+        ;;
+    esac
+  done
+  if [[ -z ${__g__cmd} ]]
+  then
+    return
+  elif hash "__sham__cmd__${__g__cmd}" >/dev/null 2>/dev/null
+  then
+    "__sham__cmd__${__g__cmd}" "$@"
+  else
+    __sham__util__error "No specified command: ${__g__cmd}"
+    return 1
+  fi
+}
+sham "$@"
 __sham__init() {
   mkdir -p ${__g__home} ${__g__repos} ${__g__bin}
   touch ${__g__state} ${__g__cache}
@@ -325,7 +359,7 @@ __sham__plugins() {
     __sham__plugins_curr | sed -e 's/^/when:curr#/g'
     __sham__plugins_prev | sed -e 's/^/when:prev#/g'
   } \
-    | awk -v FS="#" -v OFS="#" '
+    | awk -v FS="#" -v OFS="#" -v RS="@" -v ORS="@"'
   {
     ctx=$3"#"$4"#"$5"#"$6"#"$7"#"$8"#"$9
     split($10,stat,":")
@@ -388,15 +422,15 @@ __sham__plugins_prev() {
   cat "${__g__state}"
 }
 __sham__plugins_curr() {
-  for __v__plug in "${shamese_plugins[@]}"
+  for __v__plug in "${SHAM_PLUGS[@]}"
   do echo "${__v__plug}"
   done
 }
 __sham__append_plugin() {
-  shamese_plugins=("${shamese_plugins[@]}" "$@")
+  SHAM_PLUGS=("${SHAM_PLUGS[@]}" "$@")
 }
 __sham__command__update() {
-  [[ ! -z ${shamese_plugins[@]} ]] || return
+  [[ ! -z ${SHAM_PLUGS[@]} ]] || return
   __sham__init
   local __v__plug=
   __sham__plugins | while read __v__plug

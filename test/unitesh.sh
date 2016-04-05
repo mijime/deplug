@@ -17,29 +17,38 @@ source "${unitfile}";
 
 for unittest in \$(declare -f|awk '\$0~/^${prefix}.+ \\(\\)/{print\$1}')
 do
-  printf "%4s %s" "." "\$unittest";
+  printf "%3s %3s %s" "." "?" "\$unittest";
   setup;
-  printf "\\r%4s %s" ".." "\$unittest";
+  printf "\\r%3s %3s %s" ".." "?" "\$unittest";
   \$unittest > "${stdout}" 2> "${stderr}";
   declare result=\$?;
-  printf "\\r%4s %s" "..." "\$unittest";
+  printf "\\r%3s %3s %s" "..." "\${result}" "\$unittest";
   teardown;
-  printf "\\r%4s %s\\n" "\${result}" "\$unittest";
 
-  if [[ \${result} -gt 0 ]] || [[ ${verbose} -eq 1 ]]
-  then 
+  if [[ \${result} -gt 0 ]]
+  then
+    printf "\\r%3s %3s %s\\n" "err" "\${result}" "\$unittest";
     cat "${stdout}" | sed "s/^/[\$UNITTEST_NUMBER] [OUT] /g";
     cat "${stderr}" | sed "s/^/[\$UNITTEST_NUMBER] [ERR] /g";
+    break;
+  elif [[ ${verbose} -gt 0 ]]
+  then
+    printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
+    cat "${stdout}" | sed "s/^/[\$UNITTEST_NUMBER] [OUT] /g";
+    cat "${stderr}" | sed "s/^/[\$UNITTEST_NUMBER] [ERR] /g";
+  else
+    printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
   fi
 done
 EOF
 
-  "${SHELL:-bash}" "${unittest}"
+  "${shell:-bash}" "${unittest}"
   rm "${unittest}" "${stdout}" "${stderr}"
 }
 
 unitesh() {
   local \
+    shell=${SHELL:-bash} \
     unitfile= \
     verbose=0 \
     parallel=0 \
@@ -48,13 +57,18 @@ unitesh() {
   while [[ $# -gt 0 ]]
   do
     case $1 in
-      --verbose|-v)
-        verbose=1
-        shift || break
+      --shell|-s)
+        shell=$2
+        shift 2 || break
         ;;
 
-      --parallel|-p)
-        parallel=1
+      --prefix|-p)
+        prefix=$2
+        shift 2 || break
+        ;;
+
+      --verbose|-v)
+        verbose=1
         shift || break
         ;;
 
@@ -65,11 +79,7 @@ unitesh() {
         then shift || break
         fi
 
-        if [[ ${parallel} -eq 0 ]]
-        then __unitesh__run
-        else __unitesh__run &
-        fi
-
+        __unitesh__run
         shift || break
         ;;
     esac

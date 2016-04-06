@@ -1,23 +1,22 @@
 #!/bin/bash
 
 setup() {
-  export SHAM_HOME=/tmp/sham;
-  source bin/sham.sh;
-
-  [[ ! -d ${SHAM_HOME} ]] || rm -r "${SHAM_HOME}";
   unset SHAM_PLUGS;
+  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
+  source bin/sham.sh;
 }
 
 teardown() {
-  [[ ! -d ${SHAM_HOME} ]] || rm -r "${SHAM_HOME}";
   unset SHAM_PLUGS;
+  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
 }
 
 __test__append_01() {
   sham mijime/sham;
 
-  echo ${SHAM_PLUGS[@]};
-  echo ${SHAM_PLUGS[@]} | grep -c "@@#as=mijime/sham#at=#dir=/tmp/sham/repos/mijime/sham#from=github://mijime/sham#of=#use=#do=#stat=1";
+  echo ${SHAM_PLUGS[@]} | grep -c "@@#as=mijime/sham#at=#dir=${SHAM_HOME}/repos/mijime/sham#from=github://mijime/sham#of=#use=#do=#stat=1";
 }
 
 __test__append_02() {

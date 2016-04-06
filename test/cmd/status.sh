@@ -3,8 +3,16 @@
 source bin/sham.sh;
 
 setup() {
-  export SHAM_HOME=/tmp/sham/${UNITTEST_NO};
-  [[ ! -d ${SHAM_HOME} ]] || rm -r "${SHAM_HOME}";
+  unset SHAM_PLUGS;
+  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
+  source bin/sham.sh;
+}
+
+teardown() {
+  unset SHAM_PLUGS;
+  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
 }
 
 __test__status_01() {

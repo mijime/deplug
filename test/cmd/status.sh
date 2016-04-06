@@ -26,7 +26,6 @@ __test__status_02() {
   sham install;
 
   cat ${SHAM_HOME}/state;
-  __sham__util__plugs;
   sham status;
   sham status | grep -c "Installed * mijime/sham";
 }

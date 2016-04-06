@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__sham__util__plugs() {
+__sham__util__disp_stat() {
   {
     if [[ -f "${__g__state}" ]]
     then
@@ -10,12 +10,12 @@ __sham__util__plugs() {
       else
         cat "${__g__state}" \
           | awk -v FS="#" -v OFS="#" -v RS="@@|\n" -v ORS="@@" \
-          '$0==""{next}$9~/stat=[34]/{print;next}{print$1,$2,$3,$4,$5,$6,$7,$8,"stat=3"}'
+          '$0==""{next}$10~/stat=[34]/{print;next}{print$1,$2,$3,$4,$5,$6,$7,$8,$9,"stat=3"}'
       fi
     fi
 
     echo "${SHAM_PLUGS[@]}"
   } \
     | awk -v FS="#" -v OFS="#" -v RS="@@|\n" -v ORS="\n" \
-    'BEGIN{c=0}$2==""{next}!cl[$2]{cl[$2]=c++}{pl[$2]="#n="cl[$2]""$0}END{for(p in pl)print "#c="c,pl[p]}'
+    'BEGIN{n=0}$3==""{next}!nl[$3]{nl[$3]=n++}{pl[$3]="#no="nl[$3]"#"$3"#"$4"#"$5"#"$6"#"$7"#"$8"#"$9"#"$10}END{for(p in pl)print pl[p]}'
 }

@@ -1,6 +1,8 @@
 #!/bin/bash
 
 __sham__util__parse() {
+  __v__no=${__v__tmp#*#no=}
+  __v__no=${__v__no%%#*=*}
   __v__as=${__v__tmp#*#as=}
   __v__as=${__v__as%%#*=*}
   __v__at=${__v__tmp#*#at=}

@@ -3,9 +3,8 @@
 __sham__repo__file() {
   case "${__g__cmd}" in
     install)
-      if [[ ! -d "${__v__dir}" ]] && ! git clone "${__v__from#*://}" "${__v__dir}" >&2
+      if [[ ! -d "${__v__dir}" ]] && ! git clone "${__v__from#*://}" "${__v__dir}"
       then
-        echo 4
         return 1
       fi
 
@@ -13,11 +12,10 @@ __sham__repo__file() {
 
       cd "${__v__dir}"
 
-      if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}" >&2
+      if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}"
       then
         cd "${__v__dir_curr}"
 
-        echo 4
         return 1
       fi
 
@@ -28,6 +26,5 @@ __sham__repo__file() {
       ;;
   esac
 
-  echo 0
   return
 }

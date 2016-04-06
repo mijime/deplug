@@ -11,6 +11,7 @@ sham() {
     __g__state= \
     __g__cmd= \
     __v__plug= \
+    __v__no=0 \
     __v__as= \
     __v__at= \
     __v__dir= \
@@ -90,5 +91,3 @@ sham() {
     return 1
   fi
 }
-
-sham "$@"

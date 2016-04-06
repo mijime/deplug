@@ -11,6 +11,7 @@ __unitesh__run() {
   cat << EOF > "${unittest}"
 #!/bin/bash
 export UNITTEST_NO=$$;
+declare maxstatus=0;
 
 setup() { :; }
 teardown() { :; }
@@ -22,38 +23,48 @@ do
   setup > "${stdout}" 2> "${stderr}";
   printf "\\r%3s %3s %s" ".." "?" "\$unittest";
   \$unittest >> "${stdout}" 2>> "${stderr}";
-  declare result=\$?;
-  printf "\\r%3s %3s %s" "..." "\${result}" "\$unittest";
+  declare status=\$?;
+  printf "\\r%3s %3s %s" "..." "\${status}" "\$unittest";
   teardown >> "${stdout}" 2>> "${stderr}";
 
-  if [[ \${result} -gt 0 ]]
+  if [[ \${status} -gt 0 ]]
   then
-    printf "\\r%3s %3s %s\\n" "err" "\${result}" "\$unittest";
+    printf "\\r%3s %3s %s\\n" "err" "\${status}" "\$unittest";
     cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
     cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
+
+    [[ \${maxstatus} -gt \${status} ]] || maxstatus=\${status};
     break;
+
   elif [[ ${verbose} -gt 0 ]]
   then
-    printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
+    printf "\\r%3s %3s %s\\n" "ok" "\${status}" "\$unittest";
     cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
     cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
   else
-    printf "\\r%3s %3s %s\\n" "ok" "\${result}" "\$unittest";
+    printf "\\r%3s %3s %s\\n" "ok" "\${status}" "\$unittest";
   fi
 done
+
+exit \${maxstatus};
 EOF
 
-  "${shell}" "${unittest}"
+  time "${shell}" "${unittest}"
+  status=$?
   rm "${unittest}" "${stdout}" "${stderr}"
+  [[ ${maxstatus} -gt ${status} ]] || maxstatus=${status};
 }
 
 unitesh() {
   local \
+    TIMEFORMAT=$'\nreal:%3lR,user:%3lU,sys:%3lS\n' \
     shell=${SHELL:-bash} \
     unitfile= \
     verbose=0 \
     parallel=0 \
-    prefix=__test__
+    prefix=__test__ \
+    status=0 \
+    maxstatus=0
 
   while [[ $# -gt 0 ]]
   do
@@ -85,6 +96,8 @@ unitesh() {
         ;;
     esac
   done
+
+  return ${maxstatus}
 }
 
 unitesh "$@"

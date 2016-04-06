@@ -19,12 +19,12 @@ source "${unitfile}";
 for unittest in \$(declare -f|awk '\$0~/^${prefix}.+ \\(\\)/{print\$1}')
 do
   printf "%3s %3s %s" "." "?" "\$unittest";
-  setup;
+  setup > "${stdout}" 2> "${stderr}";
   printf "\\r%3s %3s %s" ".." "?" "\$unittest";
   \$unittest > "${stdout}" 2> "${stderr}";
   declare result=\$?;
   printf "\\r%3s %3s %s" "..." "\${result}" "\$unittest";
-  teardown;
+  teardown > "${stdout}" 2> "${stderr}";
 
   if [[ \${result} -gt 0 ]]
   then

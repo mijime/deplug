@@ -2,92 +2,93 @@
 
 __unitesh__run() {
   local \
-    unittest=/tmp/unittest-$$.sh \
-    stdout=/tmp/unittest-$$.out \
-    stderr=/tmp/unittest-$$.err
+    __v__unittest=/tmp/unittest-$$.sh \
+    __v__stdout=/tmp/unittest-$$.out \
+    __v__stderr=/tmp/unittest-$$.err
 
-  touch "${unittest}" "${stdout}" "${stderr}"
+  touch "${__v__unittest}" "${__v__stdout}" "${__v__stderr}"
 
-  cat << EOF > "${unittest}"
+  cat << EOF > "${__v__unittest}"
 #!/bin/bash
 export UNITTEST_NO=$$;
-declare maxstatus=0;
+declare __v__maxstatus=0;
+declare __v__status=0;
 
 setup() { :; }
 teardown() { :; }
-source "${unitfile}";
+source "${__v__unitfile}";
 
-for unittest in \$(declare -f|awk '\$0~/^${prefix}.+ \\(\\)/{print\$1}')
+for __v__unittest in \$(declare -f|awk '\$0~/^${__v__prefix}.+ \\(\\)/{print\$1}')
 do
-  printf "%3s %3s %s" "." "?" "\$unittest";
-  setup > "${stdout}" 2> "${stderr}";
-  printf "\\r%3s %3s %s" ".." "?" "\$unittest";
-  \$unittest >> "${stdout}" 2>> "${stderr}";
-  declare status=\$?;
-  printf "\\r%3s %3s %s" "..." "\${status}" "\$unittest";
-  teardown >> "${stdout}" 2>> "${stderr}";
+  printf "%3s %3s %s" "." "?" "\${__v__unittest}";
+  setup > "${__v__stdout}" 2> "${__v__stderr}";
+  printf "\\r%3s %3s %s" ".." "?" "\${__v__unittest}";
+  \${__v__unittest} >> "${__v__stdout}" 2>> "${__v__stderr}";
+  __v__status=\$?;
+  printf "\\r%3s %3s %s" "..." "\${__v__status}" "\${__v__unittest}";
+  teardown >> "${__v__stdout}" 2>> "${__v__stderr}";
 
-  if [[ \${status} -gt 0 ]]
+  if [[ \${__v__status} -gt 0 ]]
   then
-    printf "\\r%3s %3s %s\\n" "err" "\${status}" "\$unittest";
-    cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
-    cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
+    printf "\\r%3s %3s %s\\n" "err" "\${__v__status}" "\${__v__unittest}";
+    cat "${__v__stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
+    cat "${__v__stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
 
-    [[ \${maxstatus} -gt \${status} ]] || maxstatus=\${status};
+    [[ \${__v__maxstatus} -gt \${__v__status} ]] || __v__maxstatus=\${__v__status};
     break;
 
-  elif [[ ${verbose} -gt 0 ]]
+  elif [[ ${__v__verbose} -gt 0 ]]
   then
-    printf "\\r%3s %3s %s\\n" "ok" "\${status}" "\$unittest";
-    cat "${stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
-    cat "${stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
+    printf "\\r%3s %3s %s\\n" "ok" "\${__v__status}" "\$__v__unittest";
+    cat "${__v__stdout}" | sed "s/^/[\$UNITTEST_NO] [OUT] /g";
+    cat "${__v__stderr}" | sed "s/^/[\$UNITTEST_NO] [ERR] /g";
   else
-    printf "\\r%3s %3s %s\\n" "ok" "\${status}" "\$unittest";
+    printf "\\r%3s %3s %s\\n" "ok" "\${__v__status}" "\$__v__unittest";
   fi
 done
 
-exit \${maxstatus};
+exit \${__v__maxstatus};
 EOF
 
-  time "${shell}" "${unittest}"
-  status=$?
-  rm "${unittest}" "${stdout}" "${stderr}"
-  [[ ${maxstatus} -gt ${status} ]] || maxstatus=${status};
+  time "${__v__shell}" "${__v__unittest}"
+  __v__status=$?
+  rm "${__v__unittest}" "${__v__stdout}" "${__v__stderr}"
+  [[ ${__v__maxstatus} -gt ${__v__status} ]] || __v__maxstatus=${__v__status};
 }
 
 unitesh() {
   local \
     TIMEFORMAT=$'\nreal:%3lR,user:%3lU,sys:%3lS\n' \
-    shell=${SHELL:-bash} \
-    unitfile= \
-    verbose=0 \
-    parallel=0 \
-    prefix=__test__ \
-    status=0 \
-    maxstatus=0
+    __v__shell=${SHELL:-bash} \
+    __v__unitfile= \
+    __v__verbose=0 \
+    __v__parallel=0 \
+    __v__prefix=__test__ \
+    __v__status=0 \
+    __v__maxstatus=0
 
   while [[ $# -gt 0 ]]
   do
     case $1 in
       --shell|-s)
-        shell=$2
+        __v__shell=$2
         shift 2 || break
         ;;
 
       --prefix|-p)
-        prefix=$2
+        __v__prefix=$2
         shift 2 || break
         ;;
 
       --verbose|-v)
-        verbose=1
+        __v__verbose=1
         shift || break
         ;;
 
       *)
-        unitfile=$1
+        __v__unitfile=$1
 
-        if [[ ! -f "${unitfile}" ]]
+        if [[ ! -f "${__v__unitfile}" ]]
         then shift || break
         fi
 
@@ -97,7 +98,7 @@ unitesh() {
     esac
   done
 
-  return ${maxstatus}
+  return ${__v__maxstatus}
 }
 
 unitesh "$@"

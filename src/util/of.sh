@@ -1,14 +1,16 @@
 #!/bin/bash
 
 __sham__util__of() {
-  cd "${__v__dir}"
+  local \
+    __v__tmp_file= \
+    __v__dir_curr=$(pwd)
 
-  local __v__tmp_file=
+  cd "${__v__dir}"
 
   for __v__tmp_file in $(eval "\\ls -1pd ${__v__of}" 2>/dev/null)
   do
     echo "source '${__v__dir}/${__v__tmp_file}';"
   done
 
-  cd -
+  cd "${__v__dir_curr}"
 }

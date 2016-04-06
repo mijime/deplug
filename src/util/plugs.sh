@@ -17,5 +17,5 @@ __sham__util__plugs() {
     echo "${SHAM_PLUGS[@]}"
   } \
     | awk -v FS="#" -v OFS="#" -v RS="@@|\n" -v ORS="\n" \
-    'BEGIN{c=0}$2==""{next}!cl[$2]{cl[$2]=c++}{pl[$2]=cl[$2]""$0}END{for(p in pl)print c,pl[p]}'
+    'BEGIN{c=0}$2==""{next}!cl[$2]{cl[$2]=c++}{pl[$2]="#n="cl[$2]""$0}END{for(p in pl)print "#c="c,pl[p]}'
 }

@@ -9,19 +9,19 @@ __sham__repo__file() {
         return 1
       fi
 
-      local __v__curr_dir=$(pwd)
+      local __v__dir_curr=$(pwd)
 
       cd "${__v__dir}"
 
       if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}" >&2
       then
-        cd "${__v__curr_dir}"
+        cd "${__v__dir_curr}"
 
         echo 4
         return 1
       fi
 
-      cd "${__v__curr_dir}"
+      cd "${__v__dir_curr}"
       ;;
 
     *)

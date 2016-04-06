@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__sham__repo__file() {
+__sham__repo__github() {
   case "${__g__cmd}" in
     install)
       if [[ ! -d "${__v__dir}" ]] && ! git clone "https://github.com/${__v__from#*://}" "${__v__dir}" >&2
@@ -9,19 +9,19 @@ __sham__repo__file() {
         return 1
       fi
 
-      local __v__curr_dir=$(pwd)
+      local __v__dir_curr=$(pwd)
 
       cd "${__v__dir}"
 
       if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}" >&2
       then
-        cd "${__v__curr_dir}"
+        cd "${__v__dir_curr}"
 
         echo 4
         return 1
       fi
 
-      cd "${__v__curr_dir}"
+      cd "${__v__dir_curr}"
       ;;
 
     update)
@@ -31,13 +31,13 @@ __sham__repo__file() {
         return 1
       fi
 
-      local __v__curr_dir=$(pwd)
+      local __v__dir_curr=$(pwd)
 
       cd "${__v__dir}"
 
       if ! git fetch >&2
       then
-        cd "${__v__curr_dir}"
+        cd "${__v__dir_curr}"
 
         echo 4
         return 1
@@ -45,7 +45,7 @@ __sham__repo__file() {
 
       if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}" >&2
       then
-        cd "${__v__curr_dir}"
+        cd "${__v__dir_curr}"
 
         echo 4
         return 1
@@ -53,13 +53,13 @@ __sham__repo__file() {
 
       if ! git pull >&2
       then
-        cd "${__v__curr_dir}"
+        cd "${__v__dir_curr}"
 
         echo 4
         return 1
       fi
 
-      cd "${__v__curr_dir}"
+      cd "${__v__dir_curr}"
       ;;
 
     *)

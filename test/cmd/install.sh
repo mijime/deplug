@@ -21,6 +21,14 @@ __test__install_01 () {
   [[ -d "${SHAM_HOME}/repos/mijime/sham" ]];
 }
 
+__test__install_01_failed() {
+  sham mijime/sham --from=file://..;
+  sham install;
+
+  [[ ! -d "${SHAM_HOME}/repos/mijime/sham" ]] \
+    && sham status | grep "Failed";
+}
+
 __test__install_02_doing() {
   sham mijime/sham --dir="${SHAM_HOME}/repo" --from=file://. --do="touch ../helloworld";
   sham install;

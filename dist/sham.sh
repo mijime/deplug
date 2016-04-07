@@ -174,9 +174,27 @@ __sham__cmd__install() {
 #!/bin/bash
 
 __sham__repo__github() {
+  __sham__util__repo_git "https://github.com/${__v__from#*://}"
+}
+#!/bin/bash
+
+__sham__repo__file() {
+  __sham__util__repo_git "${__v__from#*://}"
+}
+#!/bin/bash
+
+__sham__repo__git() {
+  __sham__util__repo_git "git://${__v__from#*://}"
+}
+#!/bin/bash
+
+__sham__util__repo_git() {
+  local __v__git_url=$1
+  shift
+
   case "${__g__cmd}" in
     install)
-      if [[ ! -d "${__v__dir}" ]] && ! git clone "https://github.com/${__v__from#*://}" "${__v__dir}"
+      if [[ ! -d "${__v__dir}" ]] && ! git clone "${__v__git_url}" "${__v__dir}"
       then
         return 1
       fi
@@ -220,36 +238,6 @@ __sham__repo__github() {
       fi
 
       if ! git pull
-      then
-        cd "${__v__dir_curr}"
-
-        return 1
-      fi
-
-      cd "${__v__dir_curr}"
-      ;;
-
-    *)
-      ;;
-  esac
-
-  return
-}
-#!/bin/bash
-
-__sham__repo__file() {
-  case "${__g__cmd}" in
-    install)
-      if [[ ! -d "${__v__dir}" ]] && ! git clone "${__v__from#*://}" "${__v__dir}"
-      then
-        return 1
-      fi
-
-      local __v__dir_curr=$(pwd)
-
-      cd "${__v__dir}"
-
-      if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}"
       then
         cd "${__v__dir_curr}"
 

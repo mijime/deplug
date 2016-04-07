@@ -1,12 +1,12 @@
 #!/bin/bash
 
-source bin/sham.sh;
+source dist/sham.sh;
 
 setup() {
   unset SHAM_PLUGS;
   export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
   [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
-  source bin/sham.sh;
+  source dist/sham.sh;
 }
 
 teardown() {

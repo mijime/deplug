@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source bin/sham.sh;
+source dist/sham.sh;
 
 setup() {
   unset SHAM_PLUGS;

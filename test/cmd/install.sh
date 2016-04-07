@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source bin/sham.sh;
+source dist/sham.sh;
 
 setup() {
   unset SHAM_PLUGS;
@@ -37,7 +37,7 @@ __test__install_03_included() {
 }
 
 __test__install_04_using() {
-  sham mijime/sham --from=file://. --use=test/*.sh;
+  sham mijime/sham --from=file://. --use=dist/*.sh;
   sham install;
 
   [[ -L ${SHAM_HOME}/bin/unitesh.sh ]];

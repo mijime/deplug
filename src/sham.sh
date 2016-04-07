@@ -87,7 +87,7 @@ sham() {
   then
     "__sham__cmd__${__g__cmd}" "$@"
   else
-    __sham__util__error "No specified command: ${__g__cmd}"
+    printf "%10s %s: %s" "[ERROR]" "No specified command" "${__g__cmd}"
     return 1
   fi
 }

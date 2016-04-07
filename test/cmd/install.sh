@@ -29,6 +29,18 @@ __test__install_01_failed() {
     && sham status | grep "Failed";
 }
 
+__test__install_01_throw_samesettings() {
+  sham mijime/sham --from=file://.;
+  sham install;
+
+  sham mijime/sham --from=file://.;
+  rm -r "${SHAM_HOME}/repos/mijime/sham";
+  sham install;
+
+  [[ ! -d "${SHAM_HOME}/repos/mijime/sham" ]] \
+    && sham status | grep "Installed";
+}
+
 __test__install_02_doing() {
   sham mijime/sham --dir="${SHAM_HOME}/repo" --from=file://. --do="touch ../helloworld";
   sham install;

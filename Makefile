@@ -3,7 +3,7 @@ TARGET=dist/sham.sh
 SRC_TARGET=$(wildcard src/*/*.sh) src/sham.sh
 TEST_TARGET=$(wildcard test/*/*.sh)
 
-all: $(TARGET) test
+all: $(TARGET)
 
 $(TARGET): $(SRC_TARGET)
 	cat $^ > $@

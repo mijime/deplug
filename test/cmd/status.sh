@@ -18,6 +18,7 @@ teardown() {
 __test__status_01() {
   sham mijime/sham;
 
+  sham status;
   sham status | grep -c "NoInstall * mijime/sham";
 }
 
@@ -25,7 +26,6 @@ __test__status_02() {
   sham mijime/sham --from file://.;
   sham install;
 
-  cat ${SHAM_HOME}/state;
   sham status;
   sham status | grep -c "Installed * mijime/sham";
 }

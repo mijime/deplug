@@ -34,6 +34,11 @@ sham() {
     local __v__tmp=
 
     case $1 in
+      --color|-c)
+        __sham__util__color
+        shift || break
+        ;;
+
       --verbose|-v)
         __v__verbose=1
         shift || break

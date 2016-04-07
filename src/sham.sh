@@ -19,7 +19,8 @@ sham() {
     __v__of= \
     __v__use= \
     __v__do= \
-    __v__verbose=
+    __v__verbose= \
+    __v__logger=/dev/null
 
   local -a \
     __g__colo=()
@@ -44,7 +45,7 @@ sham() {
         shift || break
         ;;
 
-      --as|--at|--dir|--from|--of|--use|--do)
+      --logger|--as|--at|--dir|--from|--of|--use|--do)
         eval "__v__${1#--}=\"$2\""
         shift 2 || break
         ;;
@@ -54,7 +55,7 @@ sham() {
         shift 2 || break
         ;;
 
-      --as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
+      --logger=*|--as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
         __v__tmp=${1%%=*}
         eval "__v__${__v__tmp#--}=\"${1#*=}\""
         shift || break

@@ -280,14 +280,7 @@ __sham__util__disp_stat() {
 __sham__util__sync() {
   mkdir -p "${__g__home}" "${__g__bin}"
 
-  local \
-    __v__tmp= \
-    __v__logger=/dev/null
-
-  if [[ ! -z ${__v__verbose} ]]
-  then
-    __v__logger=/dev/logger
-  fi
+  local __v__tmp=
 
   __sham__util__disp_stat \
     | while read __v__tmp
@@ -295,7 +288,7 @@ __sham__util__sync() {
         __sham__util__parse
 
         case "${__v__stat}" in
-          3)
+          [3])
             __sham__util__stringify
             continue
             ;;
@@ -310,7 +303,7 @@ __sham__util__sync() {
             __sham__repo__"${__v__scheme}" 2>&1 \
               | sed "s@^@[${__v__as}] @g" >"${__v__logger}"
 
-            if [[ $? -gt 0 ]]
+            if [[ ! -d ${__v__dir} ]]
             then
               __sham__util__stringify 4
               continue
@@ -504,7 +497,8 @@ sham() {
     __v__of= \
     __v__use= \
     __v__do= \
-    __v__verbose=
+    __v__verbose= \
+    __v__logger=/dev/null
 
   local -a \
     __g__colo=()
@@ -529,7 +523,7 @@ sham() {
         shift || break
         ;;
 
-      --as|--at|--dir|--from|--of|--use|--do)
+      --logger|--as|--at|--dir|--from|--of|--use|--do)
         eval "__v__${1#--}=\"$2\""
         shift 2 || break
         ;;
@@ -539,7 +533,7 @@ sham() {
         shift 2 || break
         ;;
 
-      --as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
+      --logger=*|--as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
         __v__tmp=${1%%=*}
         eval "__v__${__v__tmp#--}=\"${1#*=}\""
         shift || break

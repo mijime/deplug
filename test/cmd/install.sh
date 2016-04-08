@@ -4,13 +4,13 @@ source dist/sham.sh;
 
 setup() {
   unset SHAM_PLUGS;
-  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  export SHAM_HOME="/tmp/sham-${UNITTEST_NO}";
   [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
 }
 
 teardown() {
   unset SHAM_PLUGS;
-  export SHAM_HOME="/tmp/sham/${UNITTEST_NO}";
+  export SHAM_HOME="/tmp/sham-${UNITTEST_NO}";
   [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
 }
 

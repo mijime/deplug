@@ -3,7 +3,7 @@
 source src/util/disp_stat.sh;
 
 setup() {
-  export __g__home=/tmp/sham/${UNITTEST_NO};
+  export __g__home=/tmp/sham-${UNITTEST_NO};
   export __g__state=${__g__home}/cache;
 
   mkdir -p "${__g__home}";

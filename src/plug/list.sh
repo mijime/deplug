@@ -1,16 +1,16 @@
 #!/bin/bash
 
-__sham__util__disp_stat() {
-  if [[ -z ${SHAM_PLUGS} ]] && [[ -f "${__g__state}" ]]
+__sham__plug__list() {
+  if [[ -z ${SHAM_PLUGS} ]] && [[ -f "${__g__stats}" ]]
   then
-    cat "${__g__state}"
+    cat "${__g__stats}"
     return
   fi
 
   {
-    if [[ -f "${__g__state}" ]]
+    if [[ -f "${__g__stats}" ]]
     then
-      cat "${__g__state}" \
+      cat "${__g__stats}" \
         | awk -v FS="#" -v OFS="#" -v RS="@@|\n" -v ORS="@@" \
         '$0==""{next}{print"cache"$0}'
     fi

@@ -18,5 +18,5 @@ __sham__cmd__append() {
   else __v__stat=1
   fi
 
-  SHAM_PLUGS=("${SHAM_PLUGS[@]}" "$(__sham__util__stringify)")
+  SHAM_PLUGS=("${SHAM_PLUGS[@]}" "$(__sham__plug__stringify)")
 }

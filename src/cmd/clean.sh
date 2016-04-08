@@ -3,46 +3,26 @@
 __sham__cmd__clean() {
   local __v__tmp=
 
-  __sham__util__disp_stat \
+  __sham__plug__init
+
+  __sham__plug__list \
     | while read __v__tmp
       do
-        __sham__util__parse
-
-        case ${__v__stat} in
-          [0-2])
-            __sham__util__stringify
-            ;;
-
-          *)
-            if [[ ! -d "${__v__dir}" ]]
-            then continue
-            fi
-
-            {
-              __sham__util__stringify 10
-              rm -rf "${__v__dir}"
-              __sham__util__stringify 11
-            } &
-            ;;
-        esac
+        {
+          __sham__plug__parse
+          __sham__plug__stringify 14 \
+            | __sham__util__logger --out /dev/stdout
+          __sham__plug__clean
+          __sham__plug__write_stats
+          __sham__plug__stringify
+        } &
       done \
     | while read __v__tmp
       do
-        __sham__util__parse
-        __sham__util__disp_status >&2
-        case ${__v__stat} in
-          [0-4])
-            echo "${__v__tmp}"
-            ;;
-        esac
-      done \
-    > "${__g__state}".tmp
-  mv "${__g__state}"{.tmp,}
+        __sham__plug__parse
+        __sham__plug__show
+      done
 
-  if [[ -f "${__g__cache}".tmp ]]
-  then
-    mv "${__g__cache}"{.tmp,}
-  fi
-
+  __sham__plug__save
   unset SHAM_PLUGS
 }

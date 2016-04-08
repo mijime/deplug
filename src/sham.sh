@@ -8,7 +8,7 @@ sham() {
     __g__bin= \
     __g__cache= \
     __g__repos= \
-    __g__state= \
+    __g__stats= \
     __g__cmd= \
     __v__plug= \
     __v__no=0 \
@@ -20,7 +20,7 @@ sham() {
     __v__use= \
     __v__do= \
     __v__verbose= \
-    __v__logger=/dev/null
+    __v__logger=0
 
   local -a \
     __g__colo=()
@@ -28,7 +28,7 @@ sham() {
   __g__bin=${SHAM_BIN:-${__g__home}/bin}
   __g__cache=${SHAM_CACHE:-${__g__home}/cache}
   __g__repos=${SHAM_REPO:-${__g__home}/repos}
-  __g__state=${SHAM_STATE:-${__g__home}/state}
+  __g__stats=${SHAM_STATE:-${__g__home}/stats}
 
   while [[ $# -gt 0 ]]
   do

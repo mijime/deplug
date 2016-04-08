@@ -53,7 +53,7 @@ __test__install_03_included() {
   sham mijime/sham --from=file://. --of=src/*.sh;
   sham install;
 
-  grep -c src/*.sh "${SHAM_HOME}/cache";
+  grep -c "src/sham.sh" "${SHAM_HOME}/cache";
 }
 
 __test__install_04_using() {
@@ -61,4 +61,15 @@ __test__install_04_using() {
   sham install;
 
   [[ -L ${SHAM_HOME}/bin/unitesh.sh ]];
+}
+
+__test__install_05_heavy() {
+  sham mijime/sham00 --from=file://. --of=src/*.sh --use=dist/*.sh --do="sleep 5";
+  sham mijime/sham01 --from=file://. --of=src/*.sh --use=dist/*.sh --do="sleep 5";
+  sham mijime/sham02 --from=file://. --of=src/*.sh --use=dist/*.sh --do="sleep 5";
+  sham mijime/sham03 --from=file://. --of=src/*.sh --use=dist/*.sh --do="sleep 5";
+  sham mijime/sham04 --from=file://. --of=src/*.sh --use=dist/*.sh --do="sleep 5";
+  sham install;
+
+  sham status | grep -c "Installed" | xargs test 5 -eq;
 }

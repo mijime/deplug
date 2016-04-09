@@ -1,6 +1,6 @@
 #!/bin/bash
 
-__sham__plug__install() {
+__sham__plug__update() {
   case ${__v__stat} in
     [024])
       ;;

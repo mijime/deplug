@@ -50,74 +50,6 @@ __sham__cmd__clean() {
 }
 #!/bin/bash
 
-__sham__cmd__update() {
-  local __v__tmp=
-
-  __sham__plug__init
-
-  __sham__plug__list \
-    | while read __v__tmp
-      do
-        {
-          __sham__plug__parse
-          __sham__plug__stringify 10 \
-            | __sham__util__logger --out /dev/stdout
-          __sham__plug__update
-
-          if [[ ! -z ${__v__use} ]]
-          then
-            __sham__plug__stringify 11 \
-              | __sham__util__logger --level 2 --out /dev/stdout
-            __sham__plug__link
-          fi
-
-          if [[ ! -z ${__v__do} ]]
-          then
-            __sham__plug__stringify 12 \
-              | __sham__util__logger --level 2 --out /dev/stdout
-            __sham__plug__post 2>&1 \
-              | __sham__util__logger --level 3 --prefix "[${__v__as}] "
-          fi
-
-          if [[ ! -z ${__v__of} ]]
-          then
-            __sham__plug__stringify 13 \
-              | __sham__util__logger --level 2 --out /dev/stdout
-            __sham__plug__write_cache
-          fi
-
-          __sham__plug__write_stats
-          __sham__plug__stringify
-        } &
-      done \
-    | while read __v__tmp
-      do
-        __sham__plug__parse
-        __sham__plug__show
-      done
-
-  __sham__plug__save
-  unset SHAM_PLUGS
-}
-#!/bin/bash
-
-__sham__cmd__status() {
-  local __v__tmp=
-
-  __sham__plug__list \
-    | while read __v__tmp
-      do
-        __sham__plug__parse
-        __sham__plug__show
-      done
-}
-#!/bin/bash
-
-__sham__cmd__load() {
-  source "${__g__cache}";
-}
-#!/bin/bash
-
 __sham__cmd__install() {
   local __v__tmp=
 
@@ -169,68 +101,71 @@ __sham__cmd__install() {
 }
 #!/bin/bash
 
-__sham__plug__post() {
-  case ${__v__stat} in
-    0)
-      ;;
-
-    *)
-      return
-      ;;
-  esac
-
-  if [[ -z ${__v__do} ]]
-  then return
-  fi
-
-  local __v__dir_curr=$(pwd)
-
-  cd "${__v__dir}"
-
-  if ! eval "${__v__do}" 1>&2
-  then
-    cd "${__v__dir_curr}"
-    __v__stat=4
-    return 1
-  fi
-
-  cd "${__v__dir_curr}"
-  __v__stat=0
+__sham__cmd__load() {
+  source "${__g__cache}";
 }
 #!/bin/bash
 
-__sham__plug__write_cache() {
-  case ${__v__stat} in
-    0)
-      ;;
+__sham__cmd__status() {
+  local __v__tmp=
 
-    *)
-      return
-      ;;
-  esac
-
-  if [[ -z ${__v__of} ]]
-  then return
-  fi
-
-  local \
-    __v__tmp_file= \
-    __v__dir_curr=$(pwd)
-
-  cd "${__v__dir}"
-
-  for __v__tmp_file in $(eval "ls --color=never -1pd ${__v__of}|grep -v '/$'" 2>/dev/null)
-  do
-    echo "source '${__v__dir}/${__v__tmp_file}';"
-  done >> "${__g__cache}".tmp
-
-  cd "${__v__dir_curr}"
+  __sham__plug__list \
+    | while read __v__tmp
+      do
+        __sham__plug__parse
+        __sham__plug__show
+      done
 }
 #!/bin/bash
 
-__sham__plug__stringify() {
-  local __v__tmp_stat=${1:-${__v__stat}}
-  echo "@@#no=${__v__no}#as=${__v__as}#at=${__v__at}#dir=${__v__dir}#from=${__v__from}#of=${__v__of}#use=${__v__use}#do=${__v__do}#stat=${__v__tmp_stat}"
+__sham__cmd__update() {
+  local __v__tmp=
+
+  __sham__plug__init
+
+  __sham__plug__list \
+    | while read __v__tmp
+      do
+        {
+          __sham__plug__parse
+          __sham__plug__stringify 10 \
+            | __sham__util__logger --out /dev/stdout
+          __sham__plug__update
+
+          if [[ ! -z ${__v__use} ]]
+          then
+            __sham__plug__stringify 11 \
+              | __sham__util__logger --level 2 --out /dev/stdout
+            __sham__plug__link
+          fi
+
+          if [[ ! -z ${__v__do} ]]
+          then
+            __sham__plug__stringify 12 \
+              | __sham__util__logger --level 2 --out /dev/stdout
+            __sham__plug__post 2>&1 \
+              | __sham__util__logger --level 3 --prefix "[${__v__as}] "
+          fi
+
+          if [[ ! -z ${__v__of} ]]
+          then
+            __sham__plug__stringify 13 \
+              | __sham__util__logger --level 2 --out /dev/stdout
+            __sham__plug__write_cache
+          fi
+
+          __sham__plug__write_stats
+          __sham__plug__stringify
+        } &
+      done \
+    | while read __v__tmp
+      do
+        __sham__plug__parse
+        __sham__plug__show
+      done
+
+  __sham__plug__save
+  unset SHAM_PLUGS
 }
 #!/bin/bash
 
@@ -250,9 +185,15 @@ __sham__plug__clean() {
 }
 #!/bin/bash
 
+__sham__plug__init() {
+  mkdir -p "${__g__home}" "${__g__bin}" "${__g__repos}"
+  touch {"${__g__cache}","${__g__stats}"}
+}
+#!/bin/bash
+
 __sham__plug__install() {
   case ${__v__stat} in
-    [024])
+    [124])
       ;;
 
     *)
@@ -281,36 +222,28 @@ __sham__plug__install() {
 }
 #!/bin/bash
 
-__sham__plug__parse() {
-  __v__no=${__v__tmp#*#no=}
-  __v__no=${__v__no%%#*=*}
-  __v__as=${__v__tmp#*#as=}
-  __v__as=${__v__as%%#*=*}
-  __v__at=${__v__tmp#*#at=}
-  __v__at=${__v__at%%#*=*}
-  __v__dir=${__v__tmp#*#dir=}
-  __v__dir=${__v__dir%%#*=*}
-  __v__from=${__v__tmp#*#from=}
-  __v__from=${__v__from%%#*=*}
-  __v__of=${__v__tmp#*#of=}
-  __v__of=${__v__of%%#*=*}
-  __v__use=${__v__tmp#*#use=}
-  __v__use=${__v__use%%#*=*}
-  __v__do=${__v__tmp#*#do=}
-  __v__do=${__v__do%%#*=*}
-  __v__stat=${__v__tmp#*#stat=}
-  __v__stat=${__v__stat%%#*=*}
-}
-#!/bin/bash
+__sham__plug__link() {
+  case ${__v__stat} in
+    [0])
+      ;;
 
-__sham__plug__save() {
-  if [[ -f "${__g__cache}".tmp ]]
-  then mv "${__g__cache}"{.tmp,}
-  fi
+    *)
+      return
+      ;;
+  esac
 
-  if [[ -f "${__g__stats}".tmp ]]
-  then mv "${__g__stats}"{.tmp,}
-  fi
+  local \
+    __v__tmp_file= \
+    __v__dir_curr=$(pwd)
+
+  cd "${__v__dir}"
+
+  for __v__tmp_file in $(eval "ls --color=never -1pd ${__v__use}|grep -v '/$'" 2>/dev/null)
+  do
+    ln -sf "${__v__dir}/${__v__tmp_file}" "${__g__bin}/"
+  done
+
+  cd "${__v__dir_curr}"
 }
 #!/bin/bash
 
@@ -341,6 +274,69 @@ __sham__plug__list() {
     $1!="cache"&&$10~/stat=[2]/{if(pl[$3]==ctx){st[$3]="stat=0"}else{st[$3]="stat=2"}}
     {pl[$3]=ctx}
     END{for(p in pl)print"#no="nl[p],pl[p],st[p]}'
+}
+#!/bin/bash
+
+__sham__plug__parse() {
+  __v__no=${__v__tmp#*#no=}
+  __v__no=${__v__no%%#*=*}
+  __v__as=${__v__tmp#*#as=}
+  __v__as=${__v__as%%#*=*}
+  __v__at=${__v__tmp#*#at=}
+  __v__at=${__v__at%%#*=*}
+  __v__dir=${__v__tmp#*#dir=}
+  __v__dir=${__v__dir%%#*=*}
+  __v__from=${__v__tmp#*#from=}
+  __v__from=${__v__from%%#*=*}
+  __v__of=${__v__tmp#*#of=}
+  __v__of=${__v__of%%#*=*}
+  __v__use=${__v__tmp#*#use=}
+  __v__use=${__v__use%%#*=*}
+  __v__do=${__v__tmp#*#do=}
+  __v__do=${__v__do%%#*=*}
+  __v__stat=${__v__tmp#*#stat=}
+  __v__stat=${__v__stat%%#*=*}
+}
+#!/bin/bash
+
+__sham__plug__post() {
+  case ${__v__stat} in
+    0)
+      ;;
+
+    *)
+      return
+      ;;
+  esac
+
+  if [[ -z ${__v__do} ]]
+  then return
+  fi
+
+  local __v__dir_curr=$(pwd)
+
+  cd "${__v__dir}"
+
+  if ! eval "${__v__do}" 1>&2
+  then
+    cd "${__v__dir_curr}"
+    __v__stat=4
+    return 1
+  fi
+
+  cd "${__v__dir_curr}"
+  __v__stat=0
+}
+#!/bin/bash
+
+__sham__plug__save() {
+  if [[ -f "${__g__cache}".tmp ]]
+  then mv "${__g__cache}"{.tmp,}
+  fi
+
+  if [[ -f "${__g__stats}".tmp ]]
+  then mv "${__g__stats}"{.tmp,}
+  fi
 }
 #!/bin/bash
 
@@ -383,34 +379,15 @@ __sham__plug__show() {
 }
 #!/bin/bash
 
-__sham__plug__link() {
-  case ${__v__stat} in
-    [0])
-      ;;
-
-    *)
-      return
-      ;;
-  esac
-
-  local \
-    __v__tmp_file= \
-    __v__dir_curr=$(pwd)
-
-  cd "${__v__dir}"
-
-  for __v__tmp_file in $(eval "ls --color=never -1pd ${__v__use}|grep -v '/$'" 2>/dev/null)
-  do
-    ln -sf "${__v__dir}/${__v__tmp_file}" "${__g__bin}/"
-  done
-
-  cd "${__v__dir_curr}"
+__sham__plug__stringify() {
+  local __v__tmp_stat=${1:-${__v__stat}}
+  echo "@@#no=${__v__no}#as=${__v__as}#at=${__v__at}#dir=${__v__dir}#from=${__v__from}#of=${__v__of}#use=${__v__use}#do=${__v__do}#stat=${__v__tmp_stat}"
 }
 #!/bin/bash
 
-__sham__plug__install() {
+__sham__plug__update() {
   case ${__v__stat} in
-    [124])
+    [024])
       ;;
 
     *)
@@ -439,10 +416,9 @@ __sham__plug__install() {
 }
 #!/bin/bash
 
-__sham__plug__write_stats() {
+__sham__plug__write_cache() {
   case ${__v__stat} in
-    [01234])
-      __sham__plug__stringify >> "${__g__stats}".tmp
+    [0])
       ;;
 
     *)
@@ -450,17 +426,22 @@ __sham__plug__write_stats() {
       ;;
   esac
 
+  local \
+    __v__tmp_file= \
+    __v__dir_curr=$(pwd)
+
+  cd "${__v__dir}"
+
+  for __v__tmp_file in $(eval "ls --color=never -1pd ${__v__of}|grep -v '/$'" 2>/dev/null)
+  do echo "source ${__v__dir}/${__v__tmp_file};"
+  done >> "${__g__cache}".tmp
+
+  cd "${__v__dir_curr}"
 }
 #!/bin/bash
 
-__sham__plug__init() {
-  mkdir -p "${__g__home}" "${__g__bin}" "${__g__repos}"
-  touch {"${__g__cache}","${__g__stats}"}
-}
-#!/bin/bash
-
-__sham__repo__github() {
-  __sham__util__repo_git "https://github.com/${__v__from#*://}"
+__sham__plug__write_stats() {
+  __sham__plug__stringify >> "${__g__stats}".tmp
 }
 #!/bin/bash
 
@@ -471,6 +452,72 @@ __sham__repo__file() {
 
 __sham__repo__git() {
   __sham__util__repo_git "git://${__v__from#*://}"
+}
+#!/bin/bash
+
+__sham__repo__github() {
+  __sham__util__repo_git "https://github.com/${__v__from#*://}"
+}
+#!/bin/bash
+
+__sham__util__color() {
+  __g__colo[0]="\033[m"
+  __g__colo[1]="\033[30m"
+  __g__colo[2]="\033[31m"
+  __g__colo[3]="\033[32m"
+  __g__colo[4]="\033[33m"
+  __g__colo[5]="\033[34m"
+  __g__colo[6]="\033[35m"
+  __g__colo[7]="\033[36m"
+}
+#!/bin/bash
+
+
+__sham__util__logger() {
+  local \
+    __v__tmp_prefix= \
+    __v__tmp_level=1 \
+    __v__tmp_out=/dev/stderr
+
+  while [[ $# -gt 0 ]]
+  do
+    case $1 in
+      --prefix)
+        __v__tmp_prefix=$2
+        shift 2 || break
+        ;;
+
+      --level)
+        __v__tmp_level=$2
+        shift 2 || break
+        ;;
+
+      --out)
+        __v__tmp_out=$2
+        shift 2 || break
+        ;;
+    esac
+  done
+
+  if [[ ${__v__logger} -lt ${__v__tmp_level} ]]
+  then __v__tmp_out=/dev/null
+  fi
+
+  sed -e "s@^@${__v__tmp_prefix}@g" >> "${__v__tmp_out}"
+}
+#!/bin/bash
+
+__sham__util__multiline() {
+  local \
+    __v__tmp_line=$1 \
+    __v__tmp_n=
+
+  shift || return 1
+
+  printf "\\033[%dA%s\n" $((${__v__tmp_line} + 1)) "$*"
+  for __v__tmp_n in $(seq ${__v__tmp_line})
+  do printf "\n" ""
+  done
 }
 #!/bin/bash
 
@@ -538,80 +585,6 @@ __sham__util__repo_git() {
   esac
 
   return
-}
-#!/bin/bash
-
-__sham__util__color() {
-  __g__colo[0]="\033[m"
-  __g__colo[1]="\033[30m"
-  __g__colo[2]="\033[31m"
-  __g__colo[3]="\033[32m"
-  __g__colo[4]="\033[33m"
-  __g__colo[5]="\033[34m"
-  __g__colo[6]="\033[35m"
-  __g__colo[7]="\033[36m"
-}
-#!/bin/bash
-
-__sham__util__pipe() {
-  local __v__tmp=
-  while read __v__tmp
-  do
-    {
-      __sham__plug__parse
-      $@
-      __sham__plug__stringify
-    } &
-  done
-}
-#!/bin/bash
-
-
-__sham__util__logger() {
-  local \
-    __v__tmp_prefix= \
-    __v__tmp_level=1 \
-    __v__tmp_out=/dev/stderr
-
-  while [[ $# -gt 0 ]]
-  do
-    case $1 in
-      --prefix)
-        __v__tmp_prefix=$2
-        shift 2 || break
-        ;;
-
-      --level)
-        __v__tmp_level=$2
-        shift 2 || break
-        ;;
-
-      --out)
-        __v__tmp_out=$2
-        shift 2 || break
-        ;;
-    esac
-  done
-
-  if [[ ${__v__logger} -lt ${__v__tmp_level} ]]
-  then __v__tmp_out=/dev/null
-  fi
-
-  sed -e "s@^@${__v__tmp_prefix}@g" >> "${__v__tmp_out}"
-}
-#!/bin/bash
-
-__sham__util__multiline() {
-  local \
-    __v__tmp_line=$1 \
-    __v__tmp_n=
-
-  shift || return 1
-
-  printf "\\033[%dA%s\n" $((${__v__tmp_line} + 1)) "$*"
-  for __v__tmp_n in $(seq ${__v__tmp_line})
-  do printf "\n" ""
-  done
 }
 #!/bin/bash
 

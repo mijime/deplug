@@ -1,5 +1,5 @@
-*state*
-*cache*
+stats
+cache
 repos/
 bin/
 *.bk

@@ -16,7 +16,7 @@ test/%.sh: $(TARGET)
 docker/%/build: docker/%
 	docker build --tag=sham:$* $<
 
-docker/%/test: docker/%/build $(TEST_TARGET) $(TARGET)
+docker/%/test: docker/%/build $(TARGET)
 	docker run --rm --volume /$$(pwd)://w --workdir //w sham:$* dist/unitesh.sh $(TEST_TARGET)
 
 docker: docker/bash-3.0/test docker/bash-4.0/test docker/bash/test docker/zsh/test

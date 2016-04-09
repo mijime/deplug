@@ -17,7 +17,7 @@ EOF
 }
 
 teardown() {
-  [[ ! -d ${__g__home} ]] || rm -r "${__g__home}";
+  [[ ! -d ${__g__home} ]] || rm -rf "${__g__home}";
 
   unset SHAM_PLUGS;
   unset __g__home __g__stats;

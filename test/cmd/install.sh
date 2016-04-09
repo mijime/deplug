@@ -5,13 +5,13 @@ source dist/sham.sh;
 setup() {
   unset SHAM_PLUGS;
   export SHAM_HOME="/tmp/sham-${UNITTEST_NO}";
-  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -rf "${SHAM_HOME}";
 }
 
 teardown() {
   unset SHAM_PLUGS;
   export SHAM_HOME="/tmp/sham-${UNITTEST_NO}";
-  [[ ! -d "${SHAM_HOME}" ]] || rm -r "${SHAM_HOME}";
+  [[ ! -d "${SHAM_HOME}" ]] || rm -rf "${SHAM_HOME}";
 }
 
 __test__install_01 () {
@@ -34,7 +34,7 @@ __test__install_01_throw_samesettings() {
   sham install;
 
   sham mijime/sham --from=file://.;
-  rm -r "${SHAM_HOME}/repos/mijime/sham";
+  rm -rf "${SHAM_HOME}/repos/mijime/sham";
   sham install;
 
   [[ ! -d "${SHAM_HOME}/repos/mijime/sham" ]] \

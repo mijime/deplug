@@ -6,7 +6,7 @@ TEST_TARGET=$(wildcard test/*/*.sh)
 all: $(TARGET)
 
 $(TARGET): $(SRC_TARGET)
-	cat $^ > $@
+	find $^ -type f | sort -n | xargs cat > $@
 
 test: $(TEST_TARGET)
 

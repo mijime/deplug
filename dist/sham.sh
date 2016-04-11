@@ -62,13 +62,13 @@ __sham__cmd__install() {
           __sham__plug__parse
           __sham__plug__stringify 10 \
             | __sham__util__logger --out /dev/stdout
-          __sham__plug__install
+          __sham__plug__install 2>/dev/null
 
           if [[ ! -z ${__v__use} ]]
           then
             __sham__plug__stringify 11 \
               | __sham__util__logger --level 2 --out /dev/stdout
-            __sham__plug__link
+            __sham__plug__link 2>/dev/null
           fi
 
           if [[ ! -z ${__v__do} ]]
@@ -130,13 +130,13 @@ __sham__cmd__update() {
           __sham__plug__parse
           __sham__plug__stringify 10 \
             | __sham__util__logger --out /dev/stdout
-          __sham__plug__update
+          __sham__plug__update 2>/dev/null
 
           if [[ ! -z ${__v__use} ]]
           then
             __sham__plug__stringify 11 \
               | __sham__util__logger --level 2 --out /dev/stdout
-            __sham__plug__link
+            __sham__plug__link 2>/dev/null
           fi
 
           if [[ ! -z ${__v__do} ]]
@@ -460,6 +460,105 @@ __sham__repo__github() {
 }
 #!/bin/bash
 
+declare -a SHAM_PLUGS=()
+
+sham() {
+  local \
+    __g__home=${SHAM_HOME:-~/.sham} \
+    __g__bin= \
+    __g__cache= \
+    __g__repos= \
+    __g__stats= \
+    __g__cmd= \
+    __v__plug= \
+    __v__no=0 \
+    __v__as= \
+    __v__at= \
+    __v__dir= \
+    __v__from= \
+    __v__of= \
+    __v__use= \
+    __v__do= \
+    __v__verbose= \
+    __v__logger=0
+
+  local -a \
+    __g__colo=()
+
+  __g__bin=${SHAM_BIN:-${__g__home}/bin}
+  __g__cache=${SHAM_CACHE:-${__g__home}/cache}
+  __g__repos=${SHAM_REPO:-${__g__home}/repos}
+  __g__stats=${SHAM_STATE:-${__g__home}/stats}
+
+  while [[ $# -gt 0 ]]
+  do
+    local __v__tmp=
+
+    case $1 in
+      --color|-c)
+        __sham__util__color
+        shift || break
+        ;;
+
+      --verbose|-v)
+        __v__verbose=1
+        shift || break
+        ;;
+
+      --logger|--as|--at|--dir|--from|--of|--use|--do)
+        eval "__v__${1#--}=\"$2\""
+        shift 2 || break
+        ;;
+
+      as:|at:|dir:|from:|of:|use:|do:)
+        eval "__v__${1%%:*}=\"$2\""
+        shift 2 || break
+        ;;
+
+      --logger=*|--as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
+        __v__tmp=${1%%=*}
+        eval "__v__${__v__tmp#--}=\"${1#*=}\""
+        shift || break
+        ;;
+
+      as:*|at:*|dir:*|from:*|of:*|use:*|do:*)
+        eval "__v__${1%%:*}=\"${1#*:}\""
+        shift || break
+        ;;
+
+      *://*/*)
+        __g__cmd=append
+        __v__from=$1
+        __v__plug=${1#*://}
+        shift || break
+        ;;
+
+      */*)
+        __g__cmd=append
+        __v__plug=$1
+        shift || break
+        ;;
+
+      *)
+        __g__cmd=$1
+        shift || break
+        ;;
+    esac
+  done
+
+  if [[ -z ${__g__cmd} ]]
+  then
+    return
+  elif hash "__sham__cmd__${__g__cmd}" >/dev/null 2>/dev/null
+  then
+    "__sham__cmd__${__g__cmd}" "$@"
+  else
+    printf "%10s %s: %s" "[ERROR]" "No specified command" "${__g__cmd}"
+    return 1
+  fi
+}
+#!/bin/bash
+
 __sham__util__color() {
   __g__colo[0]="\033[m"
   __g__colo[1]="\033[30m"
@@ -585,103 +684,4 @@ __sham__util__repo_git() {
   esac
 
   return
-}
-#!/bin/bash
-
-declare -a SHAM_PLUGS=()
-
-sham() {
-  local \
-    __g__home=${SHAM_HOME:-~/.sham} \
-    __g__bin= \
-    __g__cache= \
-    __g__repos= \
-    __g__stats= \
-    __g__cmd= \
-    __v__plug= \
-    __v__no=0 \
-    __v__as= \
-    __v__at= \
-    __v__dir= \
-    __v__from= \
-    __v__of= \
-    __v__use= \
-    __v__do= \
-    __v__verbose= \
-    __v__logger=0
-
-  local -a \
-    __g__colo=()
-
-  __g__bin=${SHAM_BIN:-${__g__home}/bin}
-  __g__cache=${SHAM_CACHE:-${__g__home}/cache}
-  __g__repos=${SHAM_REPO:-${__g__home}/repos}
-  __g__stats=${SHAM_STATE:-${__g__home}/stats}
-
-  while [[ $# -gt 0 ]]
-  do
-    local __v__tmp=
-
-    case $1 in
-      --color|-c)
-        __sham__util__color
-        shift || break
-        ;;
-
-      --verbose|-v)
-        __v__verbose=1
-        shift || break
-        ;;
-
-      --logger|--as|--at|--dir|--from|--of|--use|--do)
-        eval "__v__${1#--}=\"$2\""
-        shift 2 || break
-        ;;
-
-      as:|at:|dir:|from:|of:|use:|do:)
-        eval "__v__${1%%:*}=\"$2\""
-        shift 2 || break
-        ;;
-
-      --logger=*|--as=*|--at=*|--dir=*|--from=*|--of=*|--use=*|--do=*)
-        __v__tmp=${1%%=*}
-        eval "__v__${__v__tmp#--}=\"${1#*=}\""
-        shift || break
-        ;;
-
-      as:*|at:*|dir:*|from:*|of:*|use:*|do:*)
-        eval "__v__${1%%:*}=\"${1#*:}\""
-        shift || break
-        ;;
-
-      *://*/*)
-        __g__cmd=append
-        __v__from=$1
-        __v__plug=${1#*://}
-        shift || break
-        ;;
-
-      */*)
-        __g__cmd=append
-        __v__plug=$1
-        shift || break
-        ;;
-
-      *)
-        __g__cmd=$1
-        shift || break
-        ;;
-    esac
-  done
-
-  if [[ -z ${__g__cmd} ]]
-  then
-    return
-  elif hash "__sham__cmd__${__g__cmd}" >/dev/null 2>/dev/null
-  then
-    "__sham__cmd__${__g__cmd}" "$@"
-  else
-    printf "%10s %s: %s" "[ERROR]" "No specified command" "${__g__cmd}"
-    return 1
-  fi
 }

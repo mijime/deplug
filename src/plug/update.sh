@@ -14,7 +14,7 @@ __sham__plug__update() {
 
   if ! hash __sham__repo__"${__v__scheme}" >/dev/null 2>/dev/null
   then
-    printf "%10s %s: %s\n" "[ERROR]" "No specified command" "${__v__scheme}" 1>&2
+    printf "%10s %s: %s\n" "[ERROR]" "No specified scheme" "${__v__scheme}" 1>&2
     __v__stat=4
     return
   fi

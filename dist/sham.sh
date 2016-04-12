@@ -441,7 +441,11 @@ __sham__plug__write_cache() {
 #!/bin/bash
 
 __sham__plug__write_stats() {
-  __sham__plug__stringify >> "${__g__stats}".tmp
+  case ${__v__stat} in
+    [01234])
+      __sham__plug__stringify >> "${__g__stats}".tmp
+      ;;
+  esac
 }
 #!/bin/bash
 

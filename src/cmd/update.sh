@@ -6,7 +6,7 @@ __sham__cmd__update() {
   __sham__plug__init
 
   __sham__plug__list \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         {
           __sham__plug__parse
@@ -40,7 +40,7 @@ __sham__cmd__update() {
           __sham__plug__stringify
         } &
       done \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         __sham__plug__parse
         __sham__plug__show

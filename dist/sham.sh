@@ -28,7 +28,7 @@ __sham__cmd__clean() {
   __sham__plug__init
 
   __sham__plug__list \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         {
           __sham__plug__parse
@@ -39,7 +39,7 @@ __sham__cmd__clean() {
           __sham__plug__stringify
         } &
       done \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         __sham__plug__parse
         __sham__plug__show
@@ -56,7 +56,7 @@ __sham__cmd__install() {
   __sham__plug__init
 
   __sham__plug__list \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         {
           __sham__plug__parse
@@ -90,7 +90,7 @@ __sham__cmd__install() {
           __sham__plug__stringify
         } &
       done \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         __sham__plug__parse
         __sham__plug__show
@@ -110,7 +110,7 @@ __sham__cmd__status() {
   local __v__tmp=
 
   __sham__plug__list \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         __sham__plug__parse
         __sham__plug__show
@@ -124,7 +124,7 @@ __sham__cmd__update() {
   __sham__plug__init
 
   __sham__plug__list \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         {
           __sham__plug__parse
@@ -158,7 +158,7 @@ __sham__cmd__update() {
           __sham__plug__stringify
         } &
       done \
-    | while read __v__tmp
+    | while read -r __v__tmp
       do
         __sham__plug__parse
         __sham__plug__show
@@ -450,7 +450,7 @@ __sham__plug__write_stats() {
 #!/bin/bash
 
 __sham__repo__file() {
-  __sham__util__repo_git $(readlink -f "${__v__from#*://}")/.
+  __sham__util__repo_git "$(readlink -f "${__v__from#*://}")/."
 }
 #!/bin/bash
 
@@ -644,7 +644,7 @@ __sham__util__repo_git() {
         return 1
       fi
 
-      if ! git fetch origin "${__v__at}" --depth "${SHAM_DEPTH:-50}" --progress
+      if ! git fetch origin "${__v__at}" --depth 1 --progress
       then
         return 1
       fi
@@ -672,7 +672,7 @@ __sham__util__repo_git() {
         return 1
       fi
 
-      if ! git fetch origin "${__v__at}" --depth "${SHAM_DEPTH:-50}" --progress
+      if ! git fetch origin "${__v__at}" --depth 1 --progress
       then
         return 1
       fi

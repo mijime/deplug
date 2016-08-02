@@ -450,7 +450,7 @@ __sham__plug__write_stats() {
 #!/bin/bash
 
 __sham__repo__file() {
-  __sham__util__repo_git "${__v__from#*://}"
+  __sham__util__repo_git $(readlink -f "${__v__from#*://}")/.
 }
 #!/bin/bash
 
@@ -630,7 +630,7 @@ __sham__util__repo_git() {
 
   case "${__g__cmd}" in
     install)
-      if [[ ! -d "${__v__dir}" ]] && ! git clone "${__v__git_url}" "${__v__dir}"
+      if ! git init "${__v__dir}"
       then
         return 1
       fi
@@ -639,10 +639,18 @@ __sham__util__repo_git() {
 
       cd "${__v__dir}"
 
-      if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}"
+      if ! git config remote.origin.url "${__v__git_url}"
       then
-        cd "${__v__dir_curr}"
+        return 1
+      fi
 
+      if ! git fetch origin "${__v__at}" --depth "${SHAM_DEPTH:-50}" --progress
+      then
+        return 1
+      fi
+
+      if ! git checkout FETCH_HEAD
+      then
         return 1
       fi
 
@@ -659,24 +667,18 @@ __sham__util__repo_git() {
 
       cd "${__v__dir}"
 
-      if ! git fetch
+      if ! git config remote.origin.url "${__v__git_url}"
       then
-        cd "${__v__dir_curr}"
-
         return 1
       fi
 
-      if [[ ! -z "${__v__at}" ]] && ! git checkout "${__v__at}"
+      if ! git fetch origin "${__v__at}" --depth "${SHAM_DEPTH:-50}" --progress
       then
-        cd "${__v__dir_curr}"
-
         return 1
       fi
 
-      if ! git pull
+      if ! git checkout FETCH_HEAD
       then
-        cd "${__v__dir_curr}"
-
         return 1
       fi
 

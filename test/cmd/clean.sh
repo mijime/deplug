@@ -14,7 +14,7 @@ teardown() {
   [[ ! -d "${SHAM_HOME}" ]] || rm -rf "${SHAM_HOME}";
 }
 
-__test__clean_01 () {
+__test__clean_01() {
   sham mijime/sham00 --from=file://.;
   sham mijime/sham01 --from=file://.;
   sham install;
@@ -28,7 +28,7 @@ __test__clean_01 () {
     && [[ -d "${SHAM_HOME}/repos/mijime/sham01" ]];
 }
 
-__test__clean_02 () {
+__test__clean_02() {
   sham mijime/sham00 --from=file://.;
   sham mijime/sham01 --from=file://. --use=dist/*.sh --of=src/*.sh --do=echo;
   sham install;

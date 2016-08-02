@@ -14,7 +14,7 @@ teardown() {
   [[ ! -d "${SHAM_HOME}" ]] || rm -rf "${SHAM_HOME}";
 }
 
-__test__install_01 () {
+__test__install_01() {
   sham mijime/sham --from=file://.;
   sham install;
 

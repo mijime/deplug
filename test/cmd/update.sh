@@ -14,7 +14,7 @@ teardown() {
   [[ ! -d "${SHAM_HOME}" ]] || rm -rf "${SHAM_HOME}";
 }
 
-__test__update_01 () {
+__test__update_01() {
   sham mijime/sham --from=file://. --at=HEAD^^;
   sham install;
 
@@ -24,7 +24,7 @@ __test__update_01 () {
   [[ -d "${SHAM_HOME}/repos/mijime/sham" ]];
 }
 
-__test__update_02_noinstall () {
+__test__update_02_noinstall() {
   sham mijime/sham --from=file://.;
   sham update;
 

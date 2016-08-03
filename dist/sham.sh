@@ -639,6 +639,11 @@ __sham__util__repo_git() {
 
       cd "${__v__dir}"
 
+      if [[ "$(git config remote.origin.url)" = "${__v__git_url}" ]]
+      then
+        return 0
+      fi
+
       if ! git config remote.origin.url "${__v__git_url}"
       then
         return 1

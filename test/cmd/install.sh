@@ -25,8 +25,7 @@ __test__install_01_failed() {
   sham mijime/sham --from=file://..;
   sham install;
 
-  [[ ! -d "${SHAM_HOME}/repos/mijime/sham" ]] \
-    && sham status | grep "Failed";
+  sham status | grep "Failed";
 }
 
 __test__install_01_throw_samesettings() {
